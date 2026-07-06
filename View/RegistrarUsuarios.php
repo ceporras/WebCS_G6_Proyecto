@@ -1,12 +1,13 @@
+<?php
+    include_once $_SERVER['DOCUMENT_ROOT'] . '/WebCS_G6_Proyecto/WebCS_G6_Proyecto/View/ExtLayout.php';
+?>
+
 <!doctype html>
 <html lang="en">
 
-<head>
-    <meta charset="UTF-8" />
-    <title>Proyecto Web MN</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="css/main.css" />
-</head>
+<?php
+  ImportCSS();
+?>
 
 <body>
     <div class="container d-flex align-items-center justify-content-center min-vh-100">
@@ -53,8 +54,9 @@
 
     <!-- Bootstrap JS -->
     
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="js/registro.js"></script>
+    <?php
+        ImportJS();
+    ?>
 </body>
 
 </html>
