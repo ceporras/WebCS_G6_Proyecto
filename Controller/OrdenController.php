@@ -6,6 +6,9 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/WebCS_G6_Proyecto/Model/OrdenModel.ph
     $asientosReservados = listAsientosReservados($ID_Funcion);
     $ID_Sala = 1;
     $asientosTodos = listAsientos($ID_Sala);
+    
+    $asientosLibres = GetAsientoLibreByFuncion($ID_Funcion);
+
 
     if (isset($_POST["btnReservarEntrada"])) {
         
@@ -13,14 +16,12 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/WebCS_G6_Proyecto/Model/OrdenModel.ph
         //for now hardcode values
         $ID_Cliente=8;
         $ID_Promocion=1;
-        $ID_Funcion=1;
+        #$ID_Funcion=2;
         $Precio = 2500;
         $Descuento = 0;
         
-        //$ID_Funcion = $_POST["ID_Funcion"];
-        
         //valores de usuario
-        $cantidadEntradas = $_POST["catidadEntradas"];
+        $cantidadEntradas = $_POST["cantidadEntradas"];
 
 
         //add here a way to pull precio from funcion based on its id to use for subtotal
@@ -37,7 +38,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/WebCS_G6_Proyecto/Model/OrdenModel.ph
        
         //orden pendiente, sin pago
         $Estado = "PENDIENTE";
-        $ID_Orden = AddOrden($ID_Cliente, $ID_Promocion, $Estado, $Subtotal, $Descuento, $Total);
+        /*$ID_Orden = AddOrden($ID_Cliente, $ID_Promocion, $Estado, $Subtotal, $Descuento, $Total);
         
 
         if($ID_Orden)
@@ -51,6 +52,6 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/WebCS_G6_Proyecto/Model/OrdenModel.ph
         }else
         {
             $_POST["Mensaje"] = "No se ha podido reservar la funcion correctamente";
-        }
+        }*/
 
     }

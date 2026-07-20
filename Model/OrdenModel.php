@@ -75,3 +75,30 @@ function listAsientosReservados($ID_Funcion)
 
     return $reserved;
 }
+
+
+function GetAsientoByFuncion($ID_Funcion)
+{
+    $conn = OpenDB();
+
+    $sql = "CALL sp_GetAsientoByFuncion('$ID_Funcion')";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $ID_Funcion);
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+
+    CloseDB($conn);
+    return $result;
+}
+
+
+function GetAsientoLibreByFuncion($ID_Funcion)
+{
+    $conn = OpenDB();
+    $sql = "CALL sp_GetAsientoLibreByFuncion('$ID_Funcion')";
+    $result = mysqli_query($conn, $sql);
+    CloseDB($conn);
+    return $result;
+}
