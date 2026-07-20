@@ -105,7 +105,7 @@ function Navbar()
                             <li>
                                 <a
                                     class="dropdown-item"
-                                    href="/WebCS_G6_Proyecto/View/Peliculas.php"
+                                    href="/WebCS_G6_Proyecto/View/AdmPeliculas.php"
                                 >
                                     Películas
                                 </a>
@@ -114,7 +114,7 @@ function Navbar()
                             <li>
                                 <a
                                     class="dropdown-item"
-                                    href="/WebCS_G6_Proyecto/View/Generos.php"
+                                    href="/WebCS_G6_Proyecto/View/AdmGeneros.php"
                                 >
                                     Géneros
                                 </a>
