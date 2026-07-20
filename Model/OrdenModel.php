@@ -37,7 +37,7 @@ function AddBoleto($ID_Orden, $ID_Funcion, $ID_Asiento, $TipoBoleto)
         return false;
     }
 }
-
+/*
 function listAsientos($ID_Sala)
 {
     $conn = OpenDB();
@@ -74,7 +74,7 @@ function listAsientosReservados($ID_Funcion)
     }
 
     return $reserved;
-}
+}*/
 
 
 function GetAsientoByFuncion($ID_Funcion)
@@ -98,6 +98,15 @@ function GetAsientoLibreByFuncion($ID_Funcion)
 {
     $conn = OpenDB();
     $sql = "CALL sp_GetAsientoLibreByFuncion('$ID_Funcion')";
+    $result = mysqli_query($conn, $sql);
+    CloseDB($conn);
+    return $result;
+}
+
+function GetPrecioOfFuncion($ID_Funcion)
+{
+    $conn = OpenDB();
+    $sql = "CALL sp_GetPrecioOfFuncion('$ID_Funcion')";
     $result = mysqli_query($conn, $sql);
     CloseDB($conn);
     return $result;
