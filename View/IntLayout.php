@@ -119,6 +119,15 @@ function Navbar()
                                     Géneros
                                 </a>
                             </li>
+
+                            <li>
+                                <a
+                                    class="dropdown-item"
+                                    href="/WebCS_G6_Proyecto/View/Funciones.php"
+                                >
+                                    Funciones
+                                </a>
+                            </li>
                         </ul>
 
                     </li>
