@@ -1,14 +1,14 @@
 <?php
 
-include_once $_SERVER['DOCUMENT_ROOT']
-. '/WebCS_G6_Proyecto/Model/CineModel.php';
+session_start();
 
-/* REGISTRAR CINE */
+include_once $_SERVER['DOCUMENT_ROOT']
+    . '/WebCS_G6_Proyecto/Model/CineModel.php';
+
+/* Registrar cine */
 
 if (isset($_POST['btnRegistrarCine'])) {
-
     try {
-
         $nombre = trim($_POST['nombre'] ?? '');
         $direccion = trim($_POST['direccion'] ?? '');
         $ciudad = trim($_POST['ciudad'] ?? '');
@@ -16,13 +16,21 @@ if (isset($_POST['btnRegistrarCine'])) {
         $correo = trim($_POST['correo'] ?? '');
 
         if (
-            $nombre == '' ||
-            $direccion == '' ||
-            $ciudad == '' ||
-            $telefono == '' ||
-            $correo == ''
+            $nombre === '' ||
+            $direccion === '' ||
+            $ciudad === '' ||
+            $telefono === '' ||
+            $correo === ''
         ) {
-            throw new Exception('Todos los campos son obligatorios.');
+            throw new Exception(
+                'Todos los campos del cine son obligatorios.'
+            );
+        }
+
+        if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
+            throw new Exception(
+                'El correo ingresado no es válido.'
+            );
         }
 
         RegistrarCineModel(
@@ -33,26 +41,25 @@ if (isset($_POST['btnRegistrarCine'])) {
             $correo
         );
 
-        $_SESSION['Mensaje'] = 'El cine fue registrado correctamente.';
+        $_SESSION['Mensaje'] =
+            'El cine fue registrado correctamente.';
+
         $_SESSION['TipoMensaje'] = 'success';
-
     } catch (Throwable $e) {
-
-        $_SESSION['Mensaje'] = 'No fue posible registrar el cine.';
+        $_SESSION['Mensaje'] = $e->getMessage();
         $_SESSION['TipoMensaje'] = 'danger';
-
     }
 
-    header('Location: ../View/Cines.php');
+    header(
+        'Location: /WebCS_G6_Proyecto/View/Cine.php'
+    );
     exit;
 }
 
-/* ACTUALIZAR CINE */
+/* Actualizar cine */
 
 if (isset($_POST['btnActualizarCine'])) {
-
     try {
-
         $idCine = filter_input(
             INPUT_POST,
             'idCine',
@@ -67,13 +74,21 @@ if (isset($_POST['btnActualizarCine'])) {
 
         if (
             !$idCine ||
-            $nombre == '' ||
-            $direccion == '' ||
-            $ciudad == '' ||
-            $telefono == '' ||
-            $correo == ''
+            $nombre === '' ||
+            $direccion === '' ||
+            $ciudad === '' ||
+            $telefono === '' ||
+            $correo === ''
         ) {
-            throw new Exception('Datos inválidos.');
+            throw new Exception(
+                'Los datos del cine son inválidos.'
+            );
+        }
+
+        if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
+            throw new Exception(
+                'El correo ingresado no es válido.'
+            );
         }
 
         ActualizarCineModel(
@@ -85,26 +100,25 @@ if (isset($_POST['btnActualizarCine'])) {
             $correo
         );
 
-        $_SESSION['Mensaje'] = 'El cine fue actualizado correctamente.';
+        $_SESSION['Mensaje'] =
+            'El cine fue actualizado correctamente.';
+
         $_SESSION['TipoMensaje'] = 'success';
-
     } catch (Throwable $e) {
-
-        $_SESSION['Mensaje'] = 'No fue posible actualizar el cine.';
+        $_SESSION['Mensaje'] = $e->getMessage();
         $_SESSION['TipoMensaje'] = 'danger';
-
     }
 
-    header('Location: ../View/Cines.php');
+    header(
+        'Location: /WebCS_G6_Proyecto/View/Cine.php'
+    );
     exit;
 }
 
-/* ELIMINAR CINE */
+/* Eliminar cine */
 
 if (isset($_POST['btnEliminarCine'])) {
-
     try {
-
         $idCine = filter_input(
             INPUT_POST,
             'idCine',
@@ -112,21 +126,26 @@ if (isset($_POST['btnEliminarCine'])) {
         );
 
         if (!$idCine) {
-            throw new Exception('ID inválido.');
+            throw new Exception(
+                'El ID del cine no es válido.'
+            );
         }
 
         EliminarCineModel($idCine);
 
-        $_SESSION['Mensaje'] = 'El cine fue eliminado correctamente.';
+        $_SESSION['Mensaje'] =
+            'El cine fue eliminado correctamente.';
+
         $_SESSION['TipoMensaje'] = 'success';
-
     } catch (Throwable $e) {
+        $_SESSION['Mensaje'] =
+            'No se pudo eliminar el cine. Puede tener salas asociadas.';
 
-        $_SESSION['Mensaje'] = 'No fue posible eliminar el cine.';
         $_SESSION['TipoMensaje'] = 'danger';
-
     }
 
-    header('Location: ../View/Cines.php');
+    header(
+        'Location: /WebCS_G6_Proyecto/View/Cine.php'
+    );
     exit;
 }
