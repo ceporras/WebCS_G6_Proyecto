@@ -2,33 +2,14 @@
 
 include_once $_SERVER['DOCUMENT_ROOT'] . '/WebCS_G6_Proyecto/Model/UtilModel.php';
 
-function getFunciones($ID_Pelicula)
+function getFuncionesByPelicula($ID_Pelicula)
 {
     $conn = OpenDB();
-    $sql = "
-        SELECT
-            f.ID_Funcion,
-            f.HoraInicio,
-            f.Idioma,
-            f.Formato,
-            s.Nombre AS Sala
-        FROM funcion_tb f
-        INNER JOIN sala_tb s
-            ON s.ID_Sala = f.ID_Sala
-        WHERE f.ID_Pelicula = ?
-        ORDER BY f.Idioma, f.HoraInicio
-    ";
-
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $ID_Pelicula);
-    $stmt->execute();
-
-    $result = $stmt->get_result();
-
+    $sql = "CALL sp_getFuncionesByPelicula('$ID_Pelicula')";
+    $result = mysqli_query($conn, $sql);
     CloseDB($conn);
     return $result;
 }
-
 
 function getPelicula($ID_Pelicula)
 {
@@ -258,7 +239,7 @@ function RegistrarPeliculaModel(
 
         LimpiarResultadosPendientes($conn);
 
-       
+
         if (!empty($generos) && is_array($generos)) {
 
             foreach ($generos as $idGenero) {
@@ -411,7 +392,7 @@ function ConsultarPeliculasInicioModel()
 
         $peliculas = [];
 
-        while($fila = $resultado->fetch_assoc()){
+        while ($fila = $resultado->fetch_assoc()) {
             $peliculas[] = $fila;
         }
 
@@ -419,13 +400,8 @@ function ConsultarPeliculasInicioModel()
         $stmt->close();
 
         return $peliculas;
-
     } finally {
 
         CloseDB($conn);
-
     }
 }
-
-
-

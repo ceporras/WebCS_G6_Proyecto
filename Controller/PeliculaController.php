@@ -10,7 +10,7 @@ if (isset($_GET['id_pelicula'])) {
 
     $ID_Pelicula = (int) $_GET['id_pelicula'];
     $pelicula = getPelicula($ID_Pelicula)->fetch_assoc();
-    $funciones = getFunciones($ID_Pelicula);
+    $funciones = getFuncionesByPelicula($ID_Pelicula);
 } else {
     //si el URL no tiene ID de pelicula, no puedo estar aqui
     header("Location: ../View/index.php");
