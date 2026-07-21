@@ -6,6 +6,11 @@ include_once $_SERVER['DOCUMENT_ROOT']
 include_once $_SERVER['DOCUMENT_ROOT']
     . '/WebCS_G6_Proyecto/View/IntLayout.php';
 
+include_once $_SERVER['DOCUMENT_ROOT']
+. '/WebCS_G6_Proyecto/Model/PeliculaModel.php';
+
+$peliculas = ConsultarPeliculasInicioModel();
+
 ?>
 
 <!doctype html>
@@ -56,8 +61,44 @@ include_once $_SERVER['DOCUMENT_ROOT']
         <button class="btn btn-filtro" onclick="filtrarPeliculas('Terror')">Terror</button>
       </div>
 
-      <div class="row" id="contenedorPeliculas">
-      </div>
+      <div class="row">
+
+<?php foreach($peliculas as $pelicula): ?>
+
+<div class="col-md-3 mb-4">
+
+<div class="promo-card h-100">
+
+<a
+href="Pelicula.php?id_pelicula=<?= $pelicula['ID_Pelicula'] ?>"
+style="text-decoration:none;color:inherit;">
+
+<img
+src="<?= $pelicula['URLPoster'] ?>"
+class="img-fluid rounded mb-3"
+alt="<?= htmlspecialchars($pelicula['Titulo']) ?>">
+
+<h5 class="text-center">
+
+<?= htmlspecialchars($pelicula['Titulo']) ?>
+
+</h5>
+
+<p class="text-center">
+
+<?= substr($pelicula['Sinopsis'],0,90) ?>...
+
+</p>
+
+</a>
+
+</div>
+
+</div>
+
+<?php endforeach; ?>
+
+</div>
     </div>
   </section>
 

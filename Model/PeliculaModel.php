@@ -239,7 +239,8 @@ function RegistrarPeliculaModel(
     try {
         $conn->begin_transaction();
 
-        // Registrar la película
+        // Registrar las  películas
+
         $stmt = $conn->prepare(
             "CALL spAddPelicula(?, ?, ?, ?, ?, ?, ?, ?)"
         );
@@ -274,7 +275,7 @@ function RegistrarPeliculaModel(
 
         LimpiarResultadosPendientes($conn);
 
-        // Asociar los géneros seleccionados
+       
         if (!empty($generos) && is_array($generos)) {
 
             foreach ($generos as $idGenero) {
@@ -408,7 +409,44 @@ function LimpiarResultadosPendientes($conn)
     }
 }
 
+function ConsultarPeliculasInicioModel()
+{
+    $conn = OpenDB();
 
+    try {
+
+        $stmt = $conn->prepare("
+            SELECT
+                ID_Pelicula,
+                Titulo,
+                Sinopsis,
+                URLPoster
+            FROM pelicula_tb
+            WHERE Estado = 1
+            ORDER BY FechaEstreno DESC
+        ");
+
+        $stmt->execute();
+
+        $resultado = $stmt->get_result();
+
+        $peliculas = [];
+
+        while($fila = $resultado->fetch_assoc()){
+            $peliculas[] = $fila;
+        }
+
+        $resultado->free();
+        $stmt->close();
+
+        return $peliculas;
+
+    } finally {
+
+        CloseDB($conn);
+
+    }
+}
 
 
 
