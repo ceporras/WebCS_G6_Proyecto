@@ -142,6 +142,14 @@ function Navbar()
                             👤
                         </a>
                     </li>
+                    <li class="nav-item ms-lg-3">
+                    <form action="" method="POST">
+                        <button id="btnSalir" name="btnSalir" type="submit" class="btn btn-sm bg-transparent border-0 text-start py-1 fs-6">
+                            <i class="fa-solid fa-right-from-bracket me-2"></i>
+                        Salir
+                        </button>
+                           </form>
+                              </li>
 
                 </ul>
             </div>
