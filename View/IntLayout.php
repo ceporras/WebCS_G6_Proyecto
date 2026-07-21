@@ -105,7 +105,7 @@ function Navbar()
                             <li>
                                 <a
                                     class="dropdown-item"
-                                    href="/WebCS_G6_Proyecto/View/Peliculas.php"
+                                    href="/WebCS_G6_Proyecto/View/AdmPeliculas.php"
                                 >
                                     Películas
                                 </a>
@@ -114,9 +114,18 @@ function Navbar()
                             <li>
                                 <a
                                     class="dropdown-item"
-                                    href="/WebCS_G6_Proyecto/View/Generos.php"
+                                    href="/WebCS_G6_Proyecto/View/AdmGeneros.php"
                                 >
                                     Géneros
+                                </a>
+                            </li>
+
+                            <li>
+                                <a
+                                    class="dropdown-item"
+                                    href="/WebCS_G6_Proyecto/View/Funciones.php"
+                                >
+                                    Funciones
                                 </a>
                             </li>
                         </ul>
@@ -133,6 +142,14 @@ function Navbar()
                             👤
                         </a>
                     </li>
+                    <li class="nav-item ms-lg-3">
+                    <form action="" method="POST">
+                        <button id="btnSalir" name="btnSalir" type="submit" class="btn btn-sm bg-transparent border-0 text-start py-1 fs-6">
+                            <i class="fa-solid fa-right-from-bracket me-2"></i>
+                        Salir
+                        </button>
+                           </form>
+                              </li>
 
                 </ul>
             </div>

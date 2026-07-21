@@ -32,27 +32,14 @@ function getFunciones($ID_Pelicula)
 
 function getPelicula($ID_Pelicula)
 {
-    try {
-        $conn = OpenDB();
-        $sql = "
-        SELECT *
-        FROM pelicula_tb 
-        WHERE ID_Pelicula = ? ";
 
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $ID_Pelicula);
-        $stmt->execute();
-
-        $result = $stmt->get_result();
-
-        CloseDB($conn);
-        return $result;
-    } catch (Exception $e) {
-        echo $e;
-    }
+    $conn = OpenDB();
+    $sql = "CALL spGetPelicula('$ID_Pelicula')";
+    $result = mysqli_query($conn, $sql);
+    CloseDB($conn);
+    return $result;
 }
-include_once $_SERVER['DOCUMENT_ROOT']
-. '/WebCS_G6_Proyecto/Model/utilModel.php';
+
 
 /* CRUD GÉNEROS */
 
@@ -86,19 +73,19 @@ function ConsultarGeneroPorIdModel($idGenero)
 {
     $conn = OpenDB();
 
-    try { 
+    try {
 
-    $stmt = $conn->prepare("CALL spGetGeneroById(?)");
-    $stmt ->bind_param("i", $idGenero);
-    $stmt->execute();
+        $stmt = $conn->prepare("CALL spGetGeneroById(?)");
+        $stmt->bind_param("i", $idGenero);
+        $stmt->execute();
 
-    $resultado = $stmt->get_result();
-    $genero = $resultado->fetch_assoc();
+        $resultado = $stmt->get_result();
+        $genero = $resultado->fetch_assoc();
 
-    $resultado->free();
-    $stmt->close();
+        $resultado->free();
+        $stmt->close();
 
-    return $genero;
+        return $genero;
     } finally {
         CloseDB($conn);
     }
@@ -131,7 +118,6 @@ function ActualizarGeneroModel($idGenero, $nombre)
         $stmt->close();
 
         return true;
-
     } finally {
         CloseDB($conn);
     }
@@ -215,12 +201,9 @@ function ConsultarPeliculaPorIdModel($idPelicula)
         $pelicula['GenerosSeleccionados'] = $generos;
 
         return $pelicula;
-
     } finally {
         CloseDB($conn);
     }
-
-
 }
 
 function RegistrarPeliculaModel(
@@ -301,11 +284,9 @@ function RegistrarPeliculaModel(
         $conn->commit();
 
         return $idPelicula;
-
     } catch (Throwable $e) {
         $conn->rollback();
         throw $e;
-
     } finally {
         CloseDB($conn);
     }
@@ -327,30 +308,29 @@ function ActualizarPeliculaModel(
 
     try {
 
-    $stmt = $conn->prepare(
-        "CALL spUpdatePelicula(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        $stmt = $conn->prepare(
+            "CALL spUpdatePelicula(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 
-    );
+        );
 
-    $stmt->bind_param(
-        "ississssis",
-        $idPelicula,
-        $titulo,
-        $sinopsis,
-        $duracion,
-        $clasificacion,
-        $fechaEstreno,
-        $urlTrailer,
-        $urlPoster,
-        $estado,
-        $idioma
-    );
+        $stmt->bind_param(
+            "ississssis",
+            $idPelicula,
+            $titulo,
+            $sinopsis,
+            $duracion,
+            $clasificacion,
+            $fechaEstreno,
+            $urlTrailer,
+            $urlPoster,
+            $estado,
+            $idioma
+        );
 
-    $stmt->execute();
-    $stmt->close();
+        $stmt->execute();
+        $stmt->close();
 
-    return true;
-
+        return true;
     } finally {
         CloseDB($conn);
     }
@@ -387,7 +367,7 @@ function EliminarPeliculaModel($idPelicula)
 
     try {
         $stmt = $conn->prepare("CALL spDeletePelicula(?)");
-        $stmt->bind_param("i",$idPelicula);
+        $stmt->bind_param("i", $idPelicula);
         $stmt->execute();
         $stmt->close();
 
@@ -395,7 +375,6 @@ function EliminarPeliculaModel($idPelicula)
     } finally {
         CloseDB($conn);
     }
-
 }
 
 function LimpiarResultadosPendientes($conn)

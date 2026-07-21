@@ -1,14 +1,8 @@
 <?php
-
-include_once $_SERVER['DOCUMENT_ROOT']
-. '/WebCS_G6_Proyecto/View/ExtLayout.php';
-
-include_once $_SERVER['DOCUMENT_ROOT']
-. '/WebCS_G6_Proyecto/View/IntLayout.php';
-
-include_once $_SERVER['DOCUMENT_ROOT']
-. '/WebCS_G6_Proyecto/Controller/FuncionController.php';
-
+include_once $_SERVER['DOCUMENT_ROOT'] . '/WebCS_G6_Proyecto/View/IntLayout.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/WebCS_G6_Proyecto/View/ExtLayout.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/WebCS_G6_Proyecto/Controller/OrdenController.php';
+[$ID_Funcion, $asientosLibres] = CargarFuncion();
 ?>
 
 
