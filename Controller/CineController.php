@@ -1,7 +1,5 @@
 <?php
 
-session_start();
-
 include_once $_SERVER['DOCUMENT_ROOT']
     . '/WebCS_G6_Proyecto/Model/CineModel.php';
 
