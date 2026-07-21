@@ -2,6 +2,10 @@
 
 include_once $_SERVER['DOCUMENT_ROOT'] . '/WebCS_G6_Proyecto/Model/PeliculaModel.php';
 
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
 if (isset($_GET['id_pelicula'])) {
 
     $ID_Pelicula = (int) $_GET['id_pelicula'];

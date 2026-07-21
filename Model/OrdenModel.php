@@ -2,11 +2,11 @@
 
 include_once $_SERVER['DOCUMENT_ROOT'] . '/WebCS_G6_Proyecto/Model/UtilModel.php';
 
-function AddOrden($ID_Cliente, $ID_Promocion, $Estado, $Subtotal, $Descuento, $Total)
+function AddOrden($ID_Cliente, $ID_Promocion, $Estado, $cantidadEntradas, $Subtotal, $Descuento, $Total)
 {
     try {
         $conn = OpenDB();
-        $sql = "CALL spAddOrden('$ID_Cliente', '$ID_Promocion', '$Estado', '$Subtotal', '$Descuento', '$Total')";
+        $sql = "CALL spAddOrden('$ID_Cliente', '$ID_Promocion', '$Estado', '$cantidadEntradas', '$Subtotal', '$Descuento', '$Total')";
         $result = $conn->query($sql);
 
         $row = $result->fetch_assoc();
