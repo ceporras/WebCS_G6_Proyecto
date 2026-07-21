@@ -21,6 +21,28 @@
           <h1 class="card-title mb-5 h5">Iniciar Sesión</h1>
         </div>
 
+                <?php
+        if (isset($_POST["Mensaje"])) {
+        ?>
+            <div class="alert alert-danger text-center">
+                <?php echo $_POST["Mensaje"]; ?>
+            </div>
+        <?php
+        }
+        ?>
+        <?php
+          if (
+              isset($_GET["registro"]) &&
+              $_GET["registro"] == "exitoso"
+          ) {
+          ?>
+              <div class="alert alert-success text-center">
+                  El usuario se registró correctamente. Ya puede iniciar sesión.
+              </div>
+          <?php
+          }
+          ?>
+
         <form action="" method="post" class="needs-validation mt-3" id="formIniciarSesion">
 
                     <div class="mb-3">
