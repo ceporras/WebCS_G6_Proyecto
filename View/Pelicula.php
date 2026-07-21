@@ -29,21 +29,21 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/WebCS_G6_Proyecto/Controller/Pelicula
             <div class="row">
                 <!-- Movie Information -->
                 <div class="col-md-4 mb-4">
-                    <img src="https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg"
-                        alt="Título de Película"
+                    <img src="<?= htmlspecialchars($pelicula['URLPoster']) ?>"
+                        alt="<?= htmlspecialchars($pelicula['Titulo']) ?>"
                         class="img-fluid rounded shadow">
                 </div>
 
                 <div class="col-md-8">
-                    <h1>Título de Película</h1>
+                    <h1><?= htmlspecialchars($pelicula['Titulo']) ?></h1>
 
                     <p class="lead">
-                        Una breve descripción de la película.
+                        <?= htmlspecialchars($pelicula['Sinopsis']) ?>
                     </p>
 
                     <div class="mb-4">
                         <span class="badge bg-warning text-dark">Acción</span>
-                        <span class="badge bg-secondary">2h 15min</span>
+                        <span class="badge bg-secondary"><?= FormatDuracion($pelicula['Duracion']) ?></span>
                         <span class="badge bg-danger">+13</span>
                     </div>
 

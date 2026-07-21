@@ -11,12 +11,27 @@ if (isset($_GET['id_pelicula'])) {
     $ID_Pelicula = (int) $_GET['id_pelicula'];
     $pelicula = getPelicula($ID_Pelicula)->fetch_assoc();
     $funciones = getFunciones($ID_Pelicula);
-    
-}/*else{
-    redirect somewhere else
-}*/
+} else {
+    //si el URL no tiene ID de pelicula, no puedo estar aqui
+    header("Location: ../View/index.php");
+    exit();
+}
 
-   /* Registro de género */
+//ajustar formato de duracion de pelicula
+function FormatDuracion($minutos) {
+    $horas = intdiv($minutos, 60);
+    $mins = $minutos % 60;
+
+    if ($horas > 0 && $mins > 0) {
+        return "{$horas}h {$mins}min";
+    } elseif ($horas > 0) {
+        return "{$horas}h";
+    } else {
+        return "{$mins}min";
+    }
+}
+
+/* Registro de género */
 
 if (isset($_POST['btnRegistrarGenero'])) {
 
@@ -28,7 +43,6 @@ if (isset($_POST['btnRegistrarGenero'])) {
 
             $_SESSION['Mensaje'] = 'Por favor ingrese el nombre del género.';
             $_SESSION['TipoMensaje'] = 'danger';
-
         } else {
 
             RegistrarGeneroModel($nombre);
@@ -36,13 +50,11 @@ if (isset($_POST['btnRegistrarGenero'])) {
             $_SESSION['Mensaje'] = 'El género se registró de manera exitosa.';
             $_SESSION['TipoMensaje'] = 'success';
         }
-
     } catch (mysqli_sql_exception $e) {
 
         if ($e->getCode() === 1062) {
 
             $_SESSION['Mensaje'] = 'Ese género ya se encuentra registrado, por favor intente con otro.';
-
         } else {
 
             $_SESSION['Mensaje'] = 'Le informamos que no se pudo registrar el género.';
@@ -56,248 +68,244 @@ if (isset($_POST['btnRegistrarGenero'])) {
 }
 
 
-    /*Actualizar el género*/ 
+/*Actualizar el género*/
 
-    if (isset($_POST['btnActualizarGenero'])) {
-        try {
-            $idGenero = filter_input(
-                INPUT_POST,
-                'idGenero',
-                FILTER_VALIDATE_INT
-            );
+if (isset($_POST['btnActualizarGenero'])) {
+    try {
+        $idGenero = filter_input(
+            INPUT_POST,
+            'idGenero',
+            FILTER_VALIDATE_INT
+        );
 
-            $nombre = trim($_POST['nombreGenero'] ?? '');
+        $nombre = trim($_POST['nombreGenero'] ?? '');
 
-            if (!$idGenero || $nombre === '') {
-                throw new Exception('Datos del género inválidos.');
-            }
-
-            ActualizarGeneroModel($idGenero, $nombre);
-
-            $_SESSION['Mensaje'] = 'El género se actualizó correctamente.';
-            $_SESSION['TipoMensaje'] = 'success';
-        } catch (Throwable $e) {
-            $_SESSION['Mensaje'] = 'No se pudo realizar la actualización del género.';
-            $_SESSION['TipoMensaje'] = 'danger';
+        if (!$idGenero || $nombre === '') {
+            throw new Exception('Datos del género inválidos.');
         }
 
-        header('Location: ../View/Generos.php');
-        exit;
+        ActualizarGeneroModel($idGenero, $nombre);
+
+        $_SESSION['Mensaje'] = 'El género se actualizó correctamente.';
+        $_SESSION['TipoMensaje'] = 'success';
+    } catch (Throwable $e) {
+        $_SESSION['Mensaje'] = 'No se pudo realizar la actualización del género.';
+        $_SESSION['TipoMensaje'] = 'danger';
     }
 
-    /*Eliminar el género*/
+    header('Location: ../View/Generos.php');
+    exit;
+}
 
-    if (isset($_POST['btnEliminarGenero'])) {
-        try {
-            $idGenero = filter_input(
-                INPUT_POST,
-                'idGenero',
-                FILTER_VALIDATE_INT
-            );
+/*Eliminar el género*/
 
-            if (!$idGenero) {
-                throw new Exception('ID de género inválido.');
-            }
+if (isset($_POST['btnEliminarGenero'])) {
+    try {
+        $idGenero = filter_input(
+            INPUT_POST,
+            'idGenero',
+            FILTER_VALIDATE_INT
+        );
 
-            EliminarGeneroModel($idGenero);
-
-            $_SESSION['Mensaje'] = 'El género fue eliminado correctamente.';
-            $_SESSION['TipoMensaje'] = 'success';
-        } catch (Throwable $e) {
-            $_SESSION['Mensaje'] = 'No se pudo eliminar el género indicado.';
-            $_SESSION['TipoMensaje'] = 'danger';
+        if (!$idGenero) {
+            throw new Exception('ID de género inválido.');
         }
 
-        header('Location: ../View/Generos.php');
-        exit;
+        EliminarGeneroModel($idGenero);
+
+        $_SESSION['Mensaje'] = 'El género fue eliminado correctamente.';
+        $_SESSION['TipoMensaje'] = 'success';
+    } catch (Throwable $e) {
+        $_SESSION['Mensaje'] = 'No se pudo eliminar el género indicado.';
+        $_SESSION['TipoMensaje'] = 'danger';
     }
 
-    /*Registro de péliculas*/ 
+    header('Location: ../View/Generos.php');
+    exit;
+}
 
-    if (isset($_POST['btnRegistrarPelicula'])) {
-        try {
-            $titulo = trim($_POST['titulo'] ?? '');
-            $sinopsis = trim($_POST['sinopsis']?? '');
-            $duracion = filter_input(
-                INPUT_POST,
-                'duracion',
-                FILTER_VALIDATE_INT
-            );
+/*Registro de péliculas*/
 
-            $clasificacion = trim($_POST['clasificacion'] ?? '');
-            $fechaEstreno = trim($_POST['fechaEstreno'] ?? '');
-            $urlTrailer = trim($POST['urlTrailer'] ?? '');
-            $urlPoster = trim($_POST['urlPoster'] ?? '');
-            $idioma = trim($_POST['idioma'] ?? '');
-            $generos = $_POST['generos'] ?? [];
+if (isset($_POST['btnRegistrarPelicula'])) {
+    try {
+        $titulo = trim($_POST['titulo'] ?? '');
+        $sinopsis = trim($_POST['sinopsis'] ?? '');
+        $duracion = filter_input(
+            INPUT_POST,
+            'duracion',
+            FILTER_VALIDATE_INT
+        );
 
-            if ( 
-                $titulo === '' ||
-                $sinopsis === '' ||
-                !$duracion ||
-                $duracion <= 0 ||
-                $clasificacion === '' ||
-                $fechaEstreno === '' ||
-                $idioma === ''
-            ) {
-                throw new Exception('Se deben completar todos los campos obligatorios.');
-            }
+        $clasificacion = trim($_POST['clasificacion'] ?? '');
+        $fechaEstreno = trim($_POST['fechaEstreno'] ?? '');
+        $urlTrailer = trim($POST['urlTrailer'] ?? '');
+        $urlPoster = trim($_POST['urlPoster'] ?? '');
+        $idioma = trim($_POST['idioma'] ?? '');
+        $generos = $_POST['generos'] ?? [];
 
-            if (!is_array($generos) || count($generos) === 0) {
-                throw new Exception('Se debe seleecionar al menos un género.');
-            }
-
-            RegistrarPeliculaModel(
-                $titulo,
-                $sinopsis,
-                $duracion,
-                $clasificacion,
-                $fechaEstreno,
-                $urlTrailer,
-                $urlPoster,
-                $idioma,
-                $generos
-            );
-
-            $_SESSION['Mensaje'] = 'La película fue registrada de manera exitosa.';
-            $_SESSION['TipoMensaje'] = 'sucess';
-
-        } catch (Throwable $e) {
-            $_SESSION['Mensaje'] = $e->getMessage();
-            $_SESSION['TipoMensaje'] = 'danger';
+        if (
+            $titulo === '' ||
+            $sinopsis === '' ||
+            !$duracion ||
+            $duracion <= 0 ||
+            $clasificacion === '' ||
+            $fechaEstreno === '' ||
+            $idioma === ''
+        ) {
+            throw new Exception('Se deben completar todos los campos obligatorios.');
         }
 
-        header('Location: ../View/Peliculas.php');
-        exit;
-    }
-
-    /*Actualización de películas*/
-
-    if (isset($_POST['btnActualizarPelicula'])) {
-        try {
-            $idPelicula = filter_input(
-                INPUT_POST,
-                'idPelicula',
-                FILTER_VALIDATE_INT
-            );
-
-            $titulo = trim($_POST['titulo'] ?? '');
-            $sinopsis = trim($_POST['sinopsis'] ?? '');
-
-            $duracion = filter_input(
-                INPUT_POST,
-                'duracion',
-                FILTER_VALIDATE_INT
-            );
-
-            $clasificacion = trim($_POST['clasificacion'] ?? '');
-            $fechaEstreno = trim($_POST['fechaEstreno'] ?? '');
-            $urlTrailer = trim($_POST['urlTrailer'] ?? '');
-            $urlPoster = trim($_POST['urlPoster'] ?? '');
-            $idioma = trim($_POST['idioma'] ?? '');
-
-            $estado = filter_input(
-                INPUT_POST,
-                'estado',
-                FILTER_VALIDATE_INT
-            );
-
-            if (
-                !$idPelicula ||
-                $titulo === '' ||
-                !$duracion ||
-                $duracion <= 0
-            ) {
-                throw new Exception('Le informamos que los datos de la película son inválidos.');
-
-            }
-
-            if ($estado !== 0 && $estado !== 1){
-                $estado = 1;
-            }
-
-            ActualizarPeliculaModel(
-                $idPelicula,
-                $titulo,
-                $sinopsis,
-                $duracion,
-                $clasificacion,
-                $fechaEstreno,
-                $urlTrailer,
-                $urlPoster,
-                $estado,
-                $idioma
-            );
-
-            $_SESSION['Mensaje'] = 'La pelicula se actualizó de manera exitosa.';
-            $_SESSION['TipoMensaje'] = 'success';
-        } catch (Throwable $e) {
-            $_SESSION['Mensaje'] = 'No se pudo realizar la actualización de la película.';
-            $_SESSION['TipoMensaje'] = 'danger';
+        if (!is_array($generos) || count($generos) === 0) {
+            throw new Exception('Se debe seleecionar al menos un género.');
         }
 
-        header('Location: ../View/Peliculas.php');
-        exit;
+        RegistrarPeliculaModel(
+            $titulo,
+            $sinopsis,
+            $duracion,
+            $clasificacion,
+            $fechaEstreno,
+            $urlTrailer,
+            $urlPoster,
+            $idioma,
+            $generos
+        );
+
+        $_SESSION['Mensaje'] = 'La película fue registrada de manera exitosa.';
+        $_SESSION['TipoMensaje'] = 'sucess';
+    } catch (Throwable $e) {
+        $_SESSION['Mensaje'] = $e->getMessage();
+        $_SESSION['TipoMensaje'] = 'danger';
     }
 
-    /* Cambiar estado */
+    header('Location: ../View/Peliculas.php');
+    exit;
+}
 
-    if (isset($_POST['btnCambiarEstadoPelicula'])) {
-        try {
-            $idPelicula = filter_input(
-                INPUT_POST,
-                'idPelicula',
-                FILTER_VALIDATE_INT
-            );
+/*Actualización de películas*/
 
-            $estado = filter_input(
-                INPUT_POST,
-                'estado',
-                FILTER_VALIDATE_INT
-            );
+if (isset($_POST['btnActualizarPelicula'])) {
+    try {
+        $idPelicula = filter_input(
+            INPUT_POST,
+            'idPelicula',
+            FILTER_VALIDATE_INT
+        );
 
-            if (!$idPelicula || ($estado !== 0 && $estado !==1)) {
-                throw new Exception('Los datos son inválidos.');
-            }
+        $titulo = trim($_POST['titulo'] ?? '');
+        $sinopsis = trim($_POST['sinopsis'] ?? '');
 
-            CambiarEstadoPeliculaModel($idPelicula, $estado);
+        $duracion = filter_input(
+            INPUT_POST,
+            'duracion',
+            FILTER_VALIDATE_INT
+        );
 
-            $_SESSION['Mensaje'] = 'El estado se actualizó de forma exitosa.';
-            $_SESSION['TipoMensaje'] = 'success';
-        } catch (Throwable $e) {
-            $_SESSION['Mensaje'] = 'No se pudo realizar el cambio de estado.';
-            $_SESSION['TipoMensaje'] = 'danger';            
+        $clasificacion = trim($_POST['clasificacion'] ?? '');
+        $fechaEstreno = trim($_POST['fechaEstreno'] ?? '');
+        $urlTrailer = trim($_POST['urlTrailer'] ?? '');
+        $urlPoster = trim($_POST['urlPoster'] ?? '');
+        $idioma = trim($_POST['idioma'] ?? '');
+
+        $estado = filter_input(
+            INPUT_POST,
+            'estado',
+            FILTER_VALIDATE_INT
+        );
+
+        if (
+            !$idPelicula ||
+            $titulo === '' ||
+            !$duracion ||
+            $duracion <= 0
+        ) {
+            throw new Exception('Le informamos que los datos de la película son inválidos.');
         }
 
-        header('Location: ../View/Peliculas.php');
-        exit;
-    }
-
-    /* Eliminar Películas */
-
-    if (isset($_POST['btnEliminarPelicula'])) {
-        try {
-            $idPelicula = filter_input(
-                INPUT_POST,
-                'idPelicula',
-                FILTER_VALIDATE_INT
-            );
-
-            if (!$idPelicula) {
-                throw new Exception('ID de película inválido.');
-            }
-
-            EliminarPeliculaModel($idPelicula);
-
-            $_SESSION['Mensaje'] = 'La película fue eliminada correctamente.';
-            $_SESSION['TipoMensaje'] = 'success';
-        } catch (Throwable $e) {
-            $_SESSION['Mensaje'] = 'No se pudo eliminar la película.';
-            $_SESSION['TipoMensaje'] = 'danger';
+        if ($estado !== 0 && $estado !== 1) {
+            $estado = 1;
         }
 
-        header('Location: ../View/Peliculas.php');
-        exit;
+        ActualizarPeliculaModel(
+            $idPelicula,
+            $titulo,
+            $sinopsis,
+            $duracion,
+            $clasificacion,
+            $fechaEstreno,
+            $urlTrailer,
+            $urlPoster,
+            $estado,
+            $idioma
+        );
+
+        $_SESSION['Mensaje'] = 'La pelicula se actualizó de manera exitosa.';
+        $_SESSION['TipoMensaje'] = 'success';
+    } catch (Throwable $e) {
+        $_SESSION['Mensaje'] = 'No se pudo realizar la actualización de la película.';
+        $_SESSION['TipoMensaje'] = 'danger';
     }
 
+    header('Location: ../View/Peliculas.php');
+    exit;
+}
 
+/* Cambiar estado */
+
+if (isset($_POST['btnCambiarEstadoPelicula'])) {
+    try {
+        $idPelicula = filter_input(
+            INPUT_POST,
+            'idPelicula',
+            FILTER_VALIDATE_INT
+        );
+
+        $estado = filter_input(
+            INPUT_POST,
+            'estado',
+            FILTER_VALIDATE_INT
+        );
+
+        if (!$idPelicula || ($estado !== 0 && $estado !== 1)) {
+            throw new Exception('Los datos son inválidos.');
+        }
+
+        CambiarEstadoPeliculaModel($idPelicula, $estado);
+
+        $_SESSION['Mensaje'] = 'El estado se actualizó de forma exitosa.';
+        $_SESSION['TipoMensaje'] = 'success';
+    } catch (Throwable $e) {
+        $_SESSION['Mensaje'] = 'No se pudo realizar el cambio de estado.';
+        $_SESSION['TipoMensaje'] = 'danger';
+    }
+
+    header('Location: ../View/Peliculas.php');
+    exit;
+}
+
+/* Eliminar Películas */
+
+if (isset($_POST['btnEliminarPelicula'])) {
+    try {
+        $idPelicula = filter_input(
+            INPUT_POST,
+            'idPelicula',
+            FILTER_VALIDATE_INT
+        );
+
+        if (!$idPelicula) {
+            throw new Exception('ID de película inválido.');
+        }
+
+        EliminarPeliculaModel($idPelicula);
+
+        $_SESSION['Mensaje'] = 'La película fue eliminada correctamente.';
+        $_SESSION['TipoMensaje'] = 'success';
+    } catch (Throwable $e) {
+        $_SESSION['Mensaje'] = 'No se pudo eliminar la película.';
+        $_SESSION['TipoMensaje'] = 'danger';
+    }
+
+    header('Location: ../View/Peliculas.php');
+    exit;
+}

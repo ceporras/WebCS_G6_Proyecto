@@ -2,6 +2,7 @@
 include_once $_SERVER['DOCUMENT_ROOT'] . '/WebCS_G6_Proyecto/View/IntLayout.php';
 include_once $_SERVER['DOCUMENT_ROOT'] . '/WebCS_G6_Proyecto/View/ExtLayout.php';
 include_once $_SERVER['DOCUMENT_ROOT'] . '/WebCS_G6_Proyecto/Controller/OrdenController.php';
+$datosPago = CargarCompletarReserva();
 ?>
 
 <!doctype html>
@@ -32,33 +33,33 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/WebCS_G6_Proyecto/Controller/OrdenCon
                     <div class="col-md-3 mb-3">
                         <h5 class="mb-3">Detalle de compra</h5>
 
-                        <img src="https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg"
-                            alt="Título de Película"
+                        <img src="<?= htmlspecialchars($datosPago['posterUrl']) ?>"
+                            alt="<?= htmlspecialchars($datosPago['tituloPelicula']) ?>"
                             class="img-fluid rounded shadow w-75">
 
                         <div>
-                            <label class="form-label">Titulo peli</label>
+                            <label class="form-label">Titulo de pelicula: <?= htmlspecialchars($datosPago['tituloPelicula']) ?></label>
                         </div>
                         <div>
-                            <label class="form-label">Hora de funcion</label>
+                            <label class="form-label">Hora de la funcion: <?= htmlspecialchars($datosPago['horaFuncion']) ?></label>
                         </div>
                     </div>
 
                     <div class="col-md-3 mb-3">
                         <div>
-                            <label class="form-label">Cantidad de entradas</label>
+                            <label class="form-label">Cantidad de entradas: <?= (int) $datosPago['cantidadEntradas'] ?></label>
                         </div>
                         <div>
-                            <label class="form-label">Precio por entrada</label>
+                            <label class="form-label">Precio por entrada: ₡<?= number_format($datosPago['precioEntrada'], 2) ?></label>
                         </div>
                         <div>
-                            <label class="form-label">Subtotal</label>
+                            <label class="form-label">Subtotal: ₡<?= number_format($datosPago['subtotal'], 2) ?></label>
                         </div>
                         <div>
-                            <label class="form-label">Descuento</label>
+                            <label class="form-label">Descuento: <?= (float) $datosPago['descuento'] ?> %</label>
                         </div>
                         <div>
-                            <label class="form-label">Total</label>
+                            <label class="form-label">Total: ₡<?= number_format($datosPago['total'], 2) ?></label>
                         </div>
                     
 

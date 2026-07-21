@@ -37,44 +37,17 @@ function AddBoleto($ID_Orden, $ID_Funcion, $ID_Asiento, $TipoBoleto)
         return false;
     }
 }
-/*
-function listAsientos($ID_Sala)
+
+function GetBoletosByOrden($ID_Orden)
 {
     $conn = OpenDB();
-
-    $sql = "SELECT ID_Asiento, Fila, Numero
-            FROM asiento_tb WHERE ID_Sala = ?
-            ORDER BY Fila, Numero";
-
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $ID_Sala);
-    $stmt->execute();
-
-    $result = $stmt->get_result();
-
+    $sql = "CALL sp_GetBoletosByOrden('$ID_Orden')";
+    $result = mysqli_query($conn, $sql);
     CloseDB($conn);
     return $result;
 }
 
-function listAsientosReservados($ID_Funcion)
-{
-    $conn = OpenDB();
 
-    $sql = "SELECT ID_Asiento
-            FROM boleto_tb
-            WHERE ID_Funcion=$ID_Funcion";
-
-    $result = mysqli_query($conn, $sql);
-
-    $reserved = [];
-
-    while($row = mysqli_fetch_assoc($result))
-    {
-        $reserved[] = $row['ID_Asiento'];
-    }
-
-    return $reserved;
-}*/
 
 
 function GetAsientoByFuncion($ID_Funcion)
@@ -110,4 +83,39 @@ function GetPrecioOfFuncion($ID_Funcion)
     $result = mysqli_query($conn, $sql);
     CloseDB($conn);
     return $result;
+}
+
+function GetOrdenById($ID_Orden)
+{
+    $conn = OpenDB();
+    $sql = "CALL sp_GetOrdenById('$ID_Orden')";
+    $result = mysqli_query($conn, $sql);
+    CloseDB($conn);
+    return $result;
+}
+
+function GetFuncionById($ID_Funcion)
+{
+    $conn = OpenDB();
+    $sql = "CALL sp_GetFuncionById('$ID_Funcion')";
+    $result = mysqli_query($conn, $sql);
+    CloseDB($conn);
+    return $result;
+}
+
+
+function ActualizarEstadoOrden($ID_Orden, $Estado)
+{
+    try {
+        $conn = OpenDB();
+        $sql = "CALL sp_ActualizarEstadoOrden('$ID_Orden', '$Estado')";
+        $response = $conn->query($sql);
+
+        CloseDB($conn);
+        return $response;
+    } catch (Exception $e) {
+        
+        echo "DB error: $e";
+        return false;
+    }
 }
