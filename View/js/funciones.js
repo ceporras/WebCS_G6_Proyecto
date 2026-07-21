@@ -3,487 +3,191 @@
 const URL_FUNCION_CONTROLLER =
     "/WebCS_G6_Proyecto/Controller/FuncionController.php";
 
-document.addEventListener("DOMContentLoaded", function () {
-    inicializarModuloFunciones();
-});
+const $ = (id) => document.getElementById(id);
 
-
-
-async function inicializarModuloFunciones() {
+document.addEventListener("DOMContentLoaded", async () => {
     configurarEventos();
     establecerFechaMinima();
-    cambiarEstadoFormulario(false);
+    cambiarModoEdicion(false);
 
-    await cargarPeliculas();
-    await cargarCines();
+    await Promise.all([
+        cargarSelect("consultarPeliculas", "idPelicula", "Seleccione una película", pelicula =>
+            `${pelicula.Titulo} (${pelicula.Duracion} min)`,
+            "ID_Pelicula"
+        ),
+        cargarSelect("consultarCines", "idCine", "Seleccione un cine", cine =>
+            `${cine.Nombre}${cine.Ciudad ? " - " + cine.Ciudad : ""}`,
+            "ID_Cine"
+        )
+    ]);
+
     await cargarFunciones();
-}
-
-
+});
 
 function configurarEventos() {
-    const formulario = document.getElementById("formFuncion");
-    const selectCine = document.getElementById("idCine");
-    const botonCancelar = document.getElementById("btnCancelar");
-    const botonActualizarTabla =
-        document.getElementById("btnActualizarTabla");
-    const botonConfirmarEliminar =
-        document.getElementById("btnConfirmarEliminar");
+    $("formFuncion")?.addEventListener("submit", guardarFuncion);
 
-    if (formulario) {
-        formulario.addEventListener(
-            "submit",
-            procesarFormularioFuncion
-        );
-    }
+    $("idCine")?.addEventListener("change", event => {
+        cargarSalas(event.target.value);
+    });
 
-    if (selectCine) {
-        selectCine.addEventListener(
-            "change",
-            async function () {
-                await cargarSalas(this.value);
-            }
-        );
-    }
+    $("btnCancelar")?.addEventListener("click", limpiarFormulario);
+    $("btnActualizarTabla")?.addEventListener("click", cargarFunciones);
+    $("btnConfirmarEliminar")?.addEventListener("click", eliminarFuncion);
 
-    if (botonCancelar) {
-        botonCancelar.addEventListener(
-            "click",
-            limpiarFormularioFuncion
-        );
-    }
+    $("cuerpoTablaFunciones")?.addEventListener("click", event => {
+        const boton = event.target.closest("[data-accion]");
 
-    if (botonActualizarTabla) {
-        botonActualizarTabla.addEventListener(
-            "click",
-            cargarFunciones
-        );
-    }
+        if (!boton) return;
 
-    if (botonConfirmarEliminar) {
-        botonConfirmarEliminar.addEventListener(
-            "click",
-            eliminarFuncionConfirmada
-        );
-    }
+        if (boton.dataset.accion === "editar") {
+            cargarFuncionParaEditar(boton.dataset.id);
+        }
+
+        if (boton.dataset.accion === "eliminar") {
+            abrirModalEliminar(boton.dataset.id);
+        }
+    });
 }
 
-
-/**
- *
- * @param {string} accion
- * @param {Object|null} datos
- * @param {string} metodo
- * @returns {Promise<Object>}
- */
-async function solicitarFuncionController(
-    accion,
-    datos = null,
-    metodo = "GET"
-) {
-    metodo = metodo.toUpperCase();
-
+async function solicitar(accion, datos = {}, metodo = "GET") {
     let url = URL_FUNCION_CONTROLLER;
-    const opciones = {
-        method: metodo,
-        headers: {}
-    };
+    const opciones = { method: metodo };
 
     if (metodo === "GET") {
-        const parametros = new URLSearchParams();
-        parametros.append("accion", accion);
+        const parametros = new URLSearchParams({ accion });
 
-        if (datos) {
-            Object.entries(datos).forEach(
-                function ([clave, valor]) {
-                    if (
-                        valor !== null &&
-                        valor !== undefined &&
-                        valor !== ""
-                    ) {
-                        parametros.append(clave, valor);
-                    }
-                }
-            );
-        }
+        Object.entries(datos).forEach(([clave, valor]) => {
+            if (valor !== "" && valor !== null && valor !== undefined) {
+                parametros.append(clave, valor);
+            }
+        });
 
         url += "?" + parametros.toString();
     } else {
         const formulario = new FormData();
         formulario.append("accion", accion);
 
-        if (datos) {
-            Object.entries(datos).forEach(
-                function ([clave, valor]) {
-                    formulario.append(
-                        clave,
-                        valor ?? ""
-                    );
-                }
-            );
-        }
+        Object.entries(datos).forEach(([clave, valor]) => {
+            formulario.append(clave, valor ?? "");
+        });
 
         opciones.body = formulario;
     }
 
     const respuesta = await fetch(url, opciones);
-
-    let contenido;
-
-    try {
-        contenido = await respuesta.json();
-    } catch (error) {
-        throw new Error(
-            "El servidor devolvió una respuesta que no es JSON válido."
-        );
-    }
+    const contenido = await respuesta.json();
 
     if (!respuesta.ok || !contenido.exito) {
-        throw new Error(
-            contenido.mensaje ||
-            "No fue posible completar la operación."
-        );
+        throw new Error(contenido.mensaje || "No fue posible completar la operación.");
     }
 
     return contenido;
 }
 
+async function cargarSelect(accion, idSelect, textoInicial, crearTexto, campoId, datos = {}) {
+    const select = $(idSelect);
 
+    if (!select) return;
 
-async function cargarPeliculas() {
-    const selectPelicula =
-        document.getElementById("idPelicula");
-
-    if (!selectPelicula) {
-        return;
-    }
-
-    selectPelicula.innerHTML = `
-        <option value="">
-            Cargando películas...
-        </option>
-    `;
-
-    selectPelicula.disabled = true;
+    select.disabled = true;
+    select.innerHTML = '<option value="">Cargando...</option>';
 
     try {
-        const respuesta =
-            await solicitarFuncionController(
-                "consultarPeliculas"
-            );
+        const respuesta = await solicitar(accion, datos);
+        const registros = respuesta.datos || [];
 
-        const peliculas = respuesta.datos || [];
+        select.innerHTML = `<option value="">${textoInicial}</option>`;
 
-        selectPelicula.innerHTML = `
-            <option value="">
-                Seleccione una película
-            </option>
-        `;
-
-        peliculas.forEach(function (pelicula) {
+        registros.forEach(registro => {
             const opcion = document.createElement("option");
-
-            opcion.value = pelicula.ID_Pelicula;
-
-            opcion.textContent =
-                pelicula.Titulo +
-                " (" +
-                pelicula.Duracion +
-                " min)";
-
-            selectPelicula.appendChild(opcion);
+            opcion.value = registro[campoId];
+            opcion.textContent = crearTexto(registro);
+            select.appendChild(opcion);
         });
 
-        selectPelicula.disabled = false;
+        select.disabled = registros.length === 0;
 
-        if (peliculas.length === 0) {
-            selectPelicula.innerHTML = `
-                <option value="">
-                    No hay películas activas
-                </option>
-            `;
-
-            selectPelicula.disabled = true;
+        if (registros.length === 0) {
+            select.innerHTML = '<option value="">No hay registros disponibles</option>';
         }
-    } catch (error) {
-        selectPelicula.innerHTML = `
-            <option value="">
-                Error al cargar películas
-            </option>
-        `;
 
+        return registros;
+    } catch (error) {
+        select.innerHTML = '<option value="">Error al cargar</option>';
         mostrarAlerta(error.message, "danger");
+        return [];
     }
 }
 
+async function cargarSalas(idCine, idSalaSeleccionada = "") {
+    const select = $("idSala");
 
-
-async function cargarCines() {
-    const selectCine =
-        document.getElementById("idCine");
-
-    if (!selectCine) {
-        return;
-    }
-
-    selectCine.innerHTML = `
-        <option value="">
-            Cargando cines...
-        </option>
-    `;
-
-    selectCine.disabled = true;
-
-    try {
-        const respuesta =
-            await solicitarFuncionController(
-                "consultarCines"
-            );
-
-        const cines = respuesta.datos || [];
-
-        selectCine.innerHTML = `
-            <option value="">
-                Seleccione un cine
-            </option>
-        `;
-
-        cines.forEach(function (cine) {
-            const opcion = document.createElement("option");
-
-            opcion.value = cine.ID_Cine;
-
-            opcion.textContent =
-                cine.Nombre +
-                (cine.Ciudad
-                    ? " - " + cine.Ciudad
-                    : "");
-
-            selectCine.appendChild(opcion);
-        });
-
-        selectCine.disabled = false;
-
-        if (cines.length === 0) {
-            selectCine.innerHTML = `
-                <option value="">
-                    No hay cines registrados
-                </option>
-            `;
-
-            selectCine.disabled = true;
-        }
-    } catch (error) {
-        selectCine.innerHTML = `
-            <option value="">
-                Error al cargar cines
-            </option>
-        `;
-
-        mostrarAlerta(error.message, "danger");
-    }
-}
-
-
-/**
- *
- * @param {number|string} idCine
- * @param {number|string|null} idSalaSeleccionada
- */
-async function cargarSalas(
-    idCine,
-    idSalaSeleccionada = null
-) {
-    const selectSala =
-        document.getElementById("idSala");
-
-    if (!selectSala) {
-        return;
-    }
+    if (!select) return;
 
     if (!idCine) {
-        selectSala.innerHTML = `
-            <option value="">
-                Primero seleccione un cine
-            </option>
-        `;
-
-        selectSala.disabled = true;
+        select.disabled = true;
+        select.innerHTML = '<option value="">Primero seleccione un cine</option>';
         return;
     }
 
-    selectSala.innerHTML = `
-        <option value="">
-            Cargando salas...
-        </option>
-    `;
+    await cargarSelect(
+        "consultarSalas",
+        "idSala",
+        "Seleccione una sala",
+        sala => `${sala.Nombre} - ${sala.TipoPantalla} (${sala.Capacidad} asientos)`,
+        "ID_Sala",
+        { idCine }
+    );
 
-    selectSala.disabled = true;
-
-    try {
-        const respuesta =
-            await solicitarFuncionController(
-                "consultarSalas",
-                {
-                    idCine: idCine
-                }
-            );
-
-        const salas = respuesta.datos || [];
-
-        selectSala.innerHTML = `
-            <option value="">
-                Seleccione una sala
-            </option>
-        `;
-
-        salas.forEach(function (sala) {
-            const opcion = document.createElement("option");
-
-            opcion.value = sala.ID_Sala;
-
-            opcion.textContent =
-                sala.Nombre +
-                " - " +
-                sala.TipoPantalla +
-                " (" +
-                sala.Capacidad +
-                " asientos)";
-
-            if (
-                idSalaSeleccionada !== null &&
-                String(sala.ID_Sala) ===
-                String(idSalaSeleccionada)
-            ) {
-                opcion.selected = true;
-            }
-
-            selectSala.appendChild(opcion);
-        });
-
-        selectSala.disabled = false;
-
-        if (salas.length === 0) {
-            selectSala.innerHTML = `
-                <option value="">
-                    Este cine no tiene salas registradas
-                </option>
-            `;
-
-            selectSala.disabled = true;
-        }
-    } catch (error) {
-        selectSala.innerHTML = `
-            <option value="">
-                Error al cargar salas
-            </option>
-        `;
-
-        mostrarAlerta(error.message, "danger");
-    }
+    select.value = idSalaSeleccionada;
 }
 
-
-
 async function cargarFunciones() {
-    const cuerpoTabla =
-        document.getElementById("cuerpoTablaFunciones");
+    const tabla = $("cuerpoTablaFunciones");
+    const cargando = $("contenedorCargando");
+    const boton = $("btnActualizarTabla");
 
-    const contenedorCargando =
-        document.getElementById("contenedorCargando");
+    if (!tabla) return;
 
-    const botonActualizar =
-        document.getElementById("btnActualizarTabla");
-
-    if (!cuerpoTabla) {
-        return;
-    }
-
-    if (contenedorCargando) {
-        contenedorCargando.style.display = "block";
-    }
-
-    if (botonActualizar) {
-        botonActualizar.disabled = true;
-    }
-
-    cuerpoTabla.innerHTML = "";
+    cargando && (cargando.style.display = "block");
+    boton && (boton.disabled = true);
 
     try {
-        const respuesta =
-            await solicitarFuncionController(
-                "consultarFunciones"
-            );
-
+        const respuesta = await solicitar("consultarFunciones");
         const funciones = respuesta.datos || [];
 
         if (funciones.length === 0) {
-            cuerpoTabla.innerHTML = `
+            tabla.innerHTML = `
                 <tr>
-                    <td
-                        colspan="10"
-                        class="mensaje-vacio"
-                    >
+                    <td colspan="10" class="mensaje-vacio">
                         No hay funciones registradas.
                     </td>
-                </tr>
-            `;
-
+                </tr>`;
             return;
         }
 
-        funciones.forEach(function (funcion) {
-            const fila = document.createElement("tr");
-
-            fila.innerHTML = `
-                <td>
-                    ${escaparHtml(funcion.ID_Funcion)}
-                </td>
-
-                <td>
-                    ${escaparHtml(funcion.Pelicula)}
-                </td>
-
-                <td>
-                    ${escaparHtml(funcion.Cine)}
-                </td>
-
-                <td>
-                    ${escaparHtml(funcion.Sala)}
-                </td>
-
-                <td>
-                    ${formatearFechaHora(funcion.HoraInicio)}
-                </td>
-
-                <td>
-                    ${formatearFechaHora(funcion.HoraFin)}
-                </td>
-
-                <td>
-                    ₡${formatearPrecio(funcion.Precio)}
-                </td>
-
-                <td>
-                    ${escaparHtml(funcion.Idioma)}
-                </td>
-
+        tabla.innerHTML = funciones.map(funcion => `
+            <tr>
+                <td>${escapar(funcion.ID_Funcion)}</td>
+                <td>${escapar(funcion.Pelicula)}</td>
+                <td>${escapar(funcion.Cine)}</td>
+                <td>${escapar(funcion.Sala)}</td>
+                <td>${formatearFecha(funcion.HoraInicio)}</td>
+                <td>${formatearFecha(funcion.HoraFin)}</td>
+                <td>₡${formatearPrecio(funcion.Precio)}</td>
+                <td>${escapar(funcion.Idioma)}</td>
                 <td>
                     <span class="badge bg-secondary">
-                        ${escaparHtml(funcion.Formato)}
+                        ${escapar(funcion.Formato)}
                     </span>
                 </td>
-
                 <td class="acciones-tabla">
-
                     <button
                         type="button"
                         class="btn btn-sm btn-primary me-1"
                         data-accion="editar"
-                        data-id="${escaparAtributo(
-                            funcion.ID_Funcion
-                        )}"
-                    >
+                        data-id="${escapar(funcion.ID_Funcion)}">
                         Editar
                     </button>
 
@@ -491,652 +195,245 @@ async function cargarFunciones() {
                         type="button"
                         class="btn btn-sm btn-danger"
                         data-accion="eliminar"
-                        data-id="${escaparAtributo(
-                            funcion.ID_Funcion
-                        )}"
-                    >
+                        data-id="${escapar(funcion.ID_Funcion)}">
                         Eliminar
                     </button>
-
-                </td>
-            `;
-
-            cuerpoTabla.appendChild(fila);
-        });
-
-        configurarEventosTabla();
-
-    } catch (error) {
-        cuerpoTabla.innerHTML = `
-            <tr>
-                <td
-                    colspan="10"
-                    class="mensaje-vacio text-danger"
-                >
-                    ${escaparHtml(error.message)}
                 </td>
             </tr>
-        `;
-
+        `).join("");
+    } catch (error) {
+        tabla.innerHTML = `
+            <tr>
+                <td colspan="10" class="mensaje-vacio text-danger">
+                    ${escapar(error.message)}
+                </td>
+            </tr>`;
         mostrarAlerta(error.message, "danger");
-
     } finally {
-        if (contenedorCargando) {
-            contenedorCargando.style.display = "none";
-        }
-
-        if (botonActualizar) {
-            botonActualizar.disabled = false;
-        }
+        cargando && (cargando.style.display = "none");
+        boton && (boton.disabled = false);
     }
 }
 
+async function guardarFuncion(event) {
+    event.preventDefault();
 
+    const formulario = $("formFuncion");
 
-function configurarEventosTabla() {
-    const botonesEditar =
-        document.querySelectorAll(
-            '[data-accion="editar"]'
-        );
+    if (!formulario.reportValidity()) return;
 
-    const botonesEliminar =
-        document.querySelectorAll(
-            '[data-accion="eliminar"]'
-        );
-
-    botonesEditar.forEach(function (boton) {
-        boton.addEventListener(
-            "click",
-            function () {
-                cargarFuncionParaEditar(
-                    this.dataset.id
-                );
-            }
-        );
-    });
-
-    botonesEliminar.forEach(function (boton) {
-        boton.addEventListener(
-            "click",
-            function () {
-                abrirModalEliminar(
-                    this.dataset.id
-                );
-            }
-        );
-    });
-}
-
-
-/**
- *
- * @param {SubmitEvent} evento
- */
-async function procesarFormularioFuncion(evento) {
-    evento.preventDefault();
-
-    const formulario =
-        document.getElementById("formFuncion");
-
-    const botonGuardar =
-        document.getElementById("btnGuardar");
-
-    const idFuncion =
-        document.getElementById("idFuncion").value;
-
-    if (!formulario.reportValidity()) {
-        return;
-    }
+    const idFuncion = $("idFuncion").value;
 
     const datos = {
-        idFuncion: idFuncion,
-        idPelicula:
-            document.getElementById("idPelicula").value,
-        idSala:
-            document.getElementById("idSala").value,
-        horaInicio:
-            document.getElementById("horaInicio").value,
-        precio:
-            document.getElementById("precio").value,
-        idioma:
-            document.getElementById("idioma").value,
-        formato:
-            document.getElementById("formato").value
+        idFuncion,
+        idPelicula: $("idPelicula").value,
+        idSala: $("idSala").value,
+        horaInicio: $("horaInicio").value,
+        precio: $("precio").value,
+        idioma: $("idioma").value,
+        formato: $("formato").value
     };
 
-    const accion = idFuncion
-        ? "actualizarFuncion"
-        : "registrarFuncion";
+    const accion = idFuncion ? "actualizarFuncion" : "registrarFuncion";
 
     try {
-        cambiarEstadoBotonGuardar(true);
+        cambiarEstadoBoton(true);
 
-        const respuesta =
-            await solicitarFuncionController(
-                accion,
-                datos,
-                "POST"
-            );
+        const respuesta = await solicitar(accion, datos, "POST");
 
-        mostrarAlerta(
-            respuesta.mensaje,
-            "success"
-        );
-
-        limpiarFormularioFuncion();
+        mostrarAlerta(respuesta.mensaje, "success");
+        limpiarFormulario();
         await cargarFunciones();
-
     } catch (error) {
-        mostrarAlerta(
-            error.message,
-            "danger"
-        );
-
+        mostrarAlerta(error.message, "danger");
     } finally {
-        cambiarEstadoBotonGuardar(false);
+        cambiarEstadoBoton(false);
     }
 }
 
-
-/**
- *
- * @param {number|string} idFuncion
- */
 async function cargarFuncionParaEditar(idFuncion) {
     try {
-        const respuesta =
-            await solicitarFuncionController(
-                "consultarFuncionPorId",
-                {
-                    idFuncion: idFuncion
-                }
-            );
-
+        const respuesta = await solicitar("consultarFuncionPorId", { idFuncion });
         const funcion = respuesta.datos;
 
-        if (!funcion) {
-            throw new Error(
-                "No fue posible obtener la función."
-            );
-        }
+        $("idFuncion").value = funcion.ID_Funcion;
+        $("idPelicula").value = funcion.ID_Pelicula;
+        $("idCine").value = funcion.ID_Cine;
 
-        document.getElementById("idFuncion").value =
-            funcion.ID_Funcion;
+        await cargarSalas(funcion.ID_Cine, funcion.ID_Sala);
 
-        document.getElementById("idPelicula").value =
-            funcion.ID_Pelicula;
+        $("horaInicio").value = convertirFechaInput(funcion.HoraInicio);
+        $("precio").value = funcion.Precio;
+        $("idioma").value = funcion.Idioma;
+        $("formato").value = funcion.Formato;
 
-        document.getElementById("idCine").value =
-            funcion.ID_Cine;
-
-        await cargarSalas(
-            funcion.ID_Cine,
-            funcion.ID_Sala
-        );
-
-        document.getElementById("horaInicio").value =
-            convertirFechaParaInput(
-                funcion.HoraInicio
-            );
-
-        document.getElementById("precio").value =
-            funcion.Precio;
-
-        document.getElementById("idioma").value =
-            funcion.Idioma;
-
-        document.getElementById("formato").value =
-            funcion.Formato;
-
-        cambiarEstadoFormulario(true);
-
-        window.scrollTo({
-            top: 0,
-            behavior: "smooth"
-        });
-
+        cambiarModoEdicion(true);
+        window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (error) {
         mostrarAlerta(error.message, "danger");
     }
 }
 
+function limpiarFormulario() {
+    $("formFuncion")?.reset();
+    $("idFuncion").value = "";
 
+    const selectSala = $("idSala");
 
-function limpiarFormularioFuncion() {
-    const formulario =
-        document.getElementById("formFuncion");
-
-    if (formulario) {
-        formulario.reset();
+    if (selectSala) {
+        selectSala.disabled = true;
+        selectSala.innerHTML =
+            '<option value="">Primero seleccione un cine</option>';
     }
-
-    document.getElementById("idFuncion").value = "";
-
-    const selectSala =
-        document.getElementById("idSala");
-
-    selectSala.innerHTML = `
-        <option value="">
-            Primero seleccione un cine
-        </option>
-    `;
-
-    selectSala.disabled = true;
 
     establecerFechaMinima();
-    cambiarEstadoFormulario(false);
+    cambiarModoEdicion(false);
 }
 
+function cambiarModoEdicion(editando) {
+    $("tituloFormulario").textContent =
+        editando ? "Modificar función" : "Registrar función";
 
-/**
- *
- * @param {boolean} modoEdicion
- */
-function cambiarEstadoFormulario(modoEdicion) {
-    const titulo =
-        document.getElementById("tituloFormulario");
+    $("btnGuardar").textContent =
+        editando ? "Actualizar función" : "Guardar función";
 
-    const botonGuardar =
-        document.getElementById("btnGuardar");
-
-    const botonCancelar =
-        document.getElementById("btnCancelar");
-
-    if (modoEdicion) {
-        titulo.textContent = "Modificar función";
-        botonGuardar.textContent = "Actualizar función";
-        botonCancelar.classList.remove("d-none");
-    } else {
-        titulo.textContent = "Registrar función";
-        botonGuardar.textContent = "Guardar función";
-        botonCancelar.classList.add("d-none");
-    }
+    $("btnCancelar").classList.toggle("d-none", !editando);
 }
 
+function cambiarEstadoBoton(procesando) {
+    const boton = $("btnGuardar");
 
-/**
- *
- * @param {boolean} procesando
- */
-function cambiarEstadoBotonGuardar(procesando) {
-    const boton =
-        document.getElementById("btnGuardar");
-
-    if (!boton) {
-        return;
-    }
+    if (!boton) return;
 
     boton.disabled = procesando;
 
     if (procesando) {
-        boton.dataset.textoOriginal =
-            boton.textContent;
-
-        boton.innerHTML = `
-            <span
-                class="spinner-border
-                       spinner-border-sm
-                       me-2"
-                role="status"
-                aria-hidden="true"
-            ></span>
-            Procesando...
-        `;
+        boton.textContent = "Procesando...";
     } else {
-        const idFuncion =
-            document.getElementById("idFuncion").value;
-
-        boton.textContent = idFuncion
+        boton.textContent = $("idFuncion").value
             ? "Actualizar función"
             : "Guardar función";
     }
 }
 
-
-/**
- * @param {number|string} idFuncion
- */
 function abrirModalEliminar(idFuncion) {
-    document.getElementById(
-        "idFuncionEliminar"
-    ).value = idFuncion;
+    $("idFuncionEliminar").value = idFuncion;
+    const modal = $("modalEliminarFuncion");
 
-    const modalElemento =
-        document.getElementById(
-            "modalEliminarFuncion"
-        );
-
-    if (
-        typeof bootstrap === "undefined" ||
-        !bootstrap.Modal
-    ) {
-        const confirmado = window.confirm(
-            "¿Está seguro de que desea eliminar la función?"
-        );
-
-        if (confirmado) {
-            eliminarFuncionConfirmada();
-        }
-
+    if (typeof bootstrap !== "undefined" && bootstrap.Modal && modal) {
+        bootstrap.Modal.getOrCreateInstance(modal).show();
         return;
     }
 
-    const modal =
-        bootstrap.Modal.getOrCreateInstance(
-            modalElemento
-        );
-
-    modal.show();
+    if (confirm("¿Está seguro de que desea eliminar la función?")) {
+        eliminarFuncion();
+    }
 }
 
+async function eliminarFuncion() {
+    const idFuncion = $("idFuncionEliminar").value;
 
-
-async function eliminarFuncionConfirmada() {
-    const idFuncion =
-        document.getElementById(
-            "idFuncionEliminar"
-        ).value;
-
-    const boton =
-        document.getElementById(
-            "btnConfirmarEliminar"
-        );
-
-    if (!idFuncion) {
-        mostrarAlerta(
-            "No se seleccionó una función válida.",
-            "danger"
-        );
-
-        return;
-    }
+    if (!idFuncion) return;
 
     try {
-        if (boton) {
-            boton.disabled = true;
-            boton.textContent = "Eliminando...";
-        }
-
-        const respuesta =
-            await solicitarFuncionController(
-                "eliminarFuncion",
-                {
-                    idFuncion: idFuncion
-                },
-                "POST"
-            );
-
-        cerrarModalEliminar();
-
-        mostrarAlerta(
-            respuesta.mensaje,
-            "success"
+        const respuesta = await solicitar(
+            "eliminarFuncion",
+            { idFuncion },
+            "POST"
         );
 
-        const idFuncionFormulario =
-            document.getElementById(
-                "idFuncion"
-            ).value;
+        cerrarModalEliminar();
+        mostrarAlerta(respuesta.mensaje, "success");
 
-        if (
-            String(idFuncionFormulario) ===
-            String(idFuncion)
-        ) {
-            limpiarFormularioFuncion();
+        if ($("idFuncion").value === idFuncion) {
+            limpiarFormulario();
         }
 
         await cargarFunciones();
-
     } catch (error) {
-        mostrarAlerta(
-            error.message,
-            "danger"
-        );
-
-    } finally {
-        if (boton) {
-            boton.disabled = false;
-            boton.textContent = "Eliminar";
-        }
+        mostrarAlerta(error.message, "danger");
     }
 }
-
-
 
 function cerrarModalEliminar() {
-    const modalElemento =
-        document.getElementById(
-            "modalEliminarFuncion"
-        );
+    const modal = $("modalEliminarFuncion");
 
-    if (
-        typeof bootstrap !== "undefined" &&
-        bootstrap.Modal &&
-        modalElemento
-    ) {
-        const modal =
-            bootstrap.Modal.getInstance(
-                modalElemento
-            );
-
-        if (modal) {
-            modal.hide();
-        }
+    if (typeof bootstrap !== "undefined" && bootstrap.Modal && modal) {
+        bootstrap.Modal.getInstance(modal)?.hide();
     }
 
-    document.getElementById(
-        "idFuncionEliminar"
-    ).value = "";
+    $("idFuncionEliminar").value = "";
 }
 
-
-/**
- *
- * @param {string} mensaje
- * @param {string} tipo
- */
 function mostrarAlerta(mensaje, tipo = "info") {
-    const contenedor =
-        document.getElementById(
-            "contenedorAlerta"
-        );
+    const contenedor = $("contenedorAlerta");
 
     if (!contenedor) {
+        alert(mensaje);
         return;
     }
 
     contenedor.innerHTML = `
-        <div
-            class="alert alert-${escaparAtributo(tipo)}
-                   alert-dismissible fade show"
-            role="alert"
-        >
-            ${escaparHtml(mensaje)}
-
+        <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
+            ${escapar(mensaje)}
             <button
                 type="button"
                 class="btn-close"
                 data-bs-dismiss="alert"
-                aria-label="Cerrar"
-            ></button>
-        </div>
-    `;
+                aria-label="Cerrar">
+            </button>
+        </div>`;
 
-    window.setTimeout(function () {
-        const alerta =
-            contenedor.querySelector(".alert");
-
-        if (!alerta) {
-            return;
-        }
-
-        if (
-            typeof bootstrap !== "undefined" &&
-            bootstrap.Alert
-        ) {
-            const instancia =
-                bootstrap.Alert.getOrCreateInstance(
-                    alerta
-                );
-
-            instancia.close();
-        } else {
-            alerta.remove();
-        }
-    }, 7000);
+    setTimeout(() => {
+        contenedor.querySelector(".alert")?.remove();
+    }, 5000);
 }
-
 
 function establecerFechaMinima() {
-    const campo =
-        document.getElementById("horaInicio");
+    const campo = $("horaInicio");
 
-    if (!campo) {
-        return;
-    }
+    if (!campo) return;
 
     const fecha = new Date();
-
     fecha.setSeconds(0, 0);
 
-    campo.min = convertirFechaLocalParaInput(fecha);
+    campo.min =
+        fecha.getFullYear() + "-" +
+        String(fecha.getMonth() + 1).padStart(2, "0") + "-" +
+        String(fecha.getDate()).padStart(2, "0") + "T" +
+        String(fecha.getHours()).padStart(2, "0") + ":" +
+        String(fecha.getMinutes()).padStart(2, "0");
 }
 
-
-/**
- *
- * @param {Date} fecha
- * @returns {string}
- */
-function convertirFechaLocalParaInput(fecha) {
-    const anio = fecha.getFullYear();
-
-    const mes = String(
-        fecha.getMonth() + 1
-    ).padStart(2, "0");
-
-    const dia = String(
-        fecha.getDate()
-    ).padStart(2, "0");
-
-    const hora = String(
-        fecha.getHours()
-    ).padStart(2, "0");
-
-    const minutos = String(
-        fecha.getMinutes()
-    ).padStart(2, "0");
-
-    return (
-        anio +
-        "-" +
-        mes +
-        "-" +
-        dia +
-        "T" +
-        hora +
-        ":" +
-        minutos
-    );
+function convertirFechaInput(fecha) {
+    return fecha ? String(fecha).replace(" ", "T").substring(0, 16) : "";
 }
 
+function formatearFecha(fecha) {
+    if (!fecha) return "";
 
-/**
- *
- * @param {string} fechaMysql
- * @returns {string}
- */
-function convertirFechaParaInput(fechaMysql) {
-    if (!fechaMysql) {
-        return "";
-    }
+    const valor = new Date(String(fecha).replace(" ", "T"));
 
-    return String(fechaMysql)
-        .replace(" ", "T")
-        .substring(0, 16);
-}
-
-
-/**
- *
- * @param {string} fechaMysql
- * @returns {string}
- */
-function formatearFechaHora(fechaMysql) {
-    if (!fechaMysql) {
-        return "";
-    }
-
-    const fechaNormalizada =
-        String(fechaMysql).replace(" ", "T");
-
-    const fecha = new Date(fechaNormalizada);
-
-    if (Number.isNaN(fecha.getTime())) {
-        return escaparHtml(fechaMysql);
-    }
-
-    return fecha.toLocaleString(
-        "es-CR",
-        {
+    return isNaN(valor)
+        ? escapar(fecha)
+        : valor.toLocaleString("es-CR", {
             year: "numeric",
             month: "2-digit",
             day: "2-digit",
             hour: "2-digit",
             minute: "2-digit"
-        }
-    );
+        });
 }
 
-
-/**
- *
- * @param {number|string} precio
- * @returns {string}
- */
 function formatearPrecio(precio) {
-    const numero = Number(precio);
-
-    if (Number.isNaN(numero)) {
-        return escaparHtml(precio);
-    }
-
-    return numero.toLocaleString(
-        "es-CR",
-        {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }
-    );
+    return Number(precio).toLocaleString("es-CR", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
 }
 
-
-/**
- *
- * @param {*} valor
- * @returns {string}
- */
-function escaparHtml(valor) {
-    const elemento =
-        document.createElement("div");
-
-    elemento.textContent =
-        valor === null ||
-        valor === undefined
-            ? ""
-            : String(valor);
-
+function escapar(valor) {
+    const elemento = document.createElement("div");
+    elemento.textContent = valor ?? "";
     return elemento.innerHTML;
-}
-
-
-/**
- *
- * @param {*} valor
- * @returns {string}
- */
-function escaparAtributo(valor) {
-    return escaparHtml(valor)
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
 }

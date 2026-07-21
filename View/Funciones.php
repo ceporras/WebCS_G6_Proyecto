@@ -115,7 +115,7 @@ include_once $_SERVER['DOCUMENT_ROOT']
             </p>
 
             <a
-                href="Peliculas.php"
+                href="AdmPeliculas.php"
                 class="btn btn-dorado"
             >
                 Administrar películas
