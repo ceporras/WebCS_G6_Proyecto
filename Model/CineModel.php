@@ -3,31 +3,42 @@
 include_once $_SERVER['DOCUMENT_ROOT']
     . '/WebCS_G6_Proyecto/Model/utilModel.php';
 
+
+function LimpiarResultadosCineModel($conn)
+{
+    while ($conn->more_results()) {
+        $conn->next_result();
+
+        if ($resultado = $conn->store_result()) {
+            $resultado->free();
+        }
+    }
+}
+
+/**
+ * Consulta todos los cines
+ */
 function ConsultarCinesModel()
 {
     $conn = OpenDB();
+    $cines = [];
 
     try {
-        $sql = "
-            SELECT
-                ID_Cine,
-                Nombre,
-                Direccion,
-                Ciudad,
-                Telefono,
-                Correo
-            FROM cine_tb
-            ORDER BY Nombre
-        ";
+        $stmt = $conn->prepare(
+            "CALL spGetCines()"
+        );
 
-        $resultado = $conn->query($sql);
-        $cines = [];
+        $stmt->execute();
+        $resultado = $stmt->get_result();
 
         while ($fila = $resultado->fetch_assoc()) {
             $cines[] = $fila;
         }
 
         $resultado->free();
+        $stmt->close();
+
+        LimpiarResultadosCineModel($conn);
 
         return $cines;
     } finally {
@@ -35,25 +46,24 @@ function ConsultarCinesModel()
     }
 }
 
+/**
+ * Consulta un cine mediante su ID
+ */
 function ConsultarCinePorIdModel($idCine)
 {
     $conn = OpenDB();
+    $cine = null;
 
     try {
-        $sql = "
-            SELECT
-                ID_Cine,
-                Nombre,
-                Direccion,
-                Ciudad,
-                Telefono,
-                Correo
-            FROM cine_tb
-            WHERE ID_Cine = ?
-        ";
+        $stmt = $conn->prepare(
+            "CALL spGetCineById(?)"
+        );
 
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $idCine);
+        $stmt->bind_param(
+            "i",
+            $idCine
+        );
+
         $stmt->execute();
 
         $resultado = $stmt->get_result();
@@ -62,12 +72,17 @@ function ConsultarCinePorIdModel($idCine)
         $resultado->free();
         $stmt->close();
 
+        LimpiarResultadosCineModel($conn);
+
         return $cine;
     } finally {
         CloseDB($conn);
     }
 }
 
+/**
+ * Registra un cine.
+ */
 function RegistrarCineModel(
     $nombre,
     $direccion,
@@ -78,14 +93,9 @@ function RegistrarCineModel(
     $conn = OpenDB();
 
     try {
-        $sql = "
-            INSERT INTO cine_tb
-                (Nombre, Direccion, Ciudad, Telefono, Correo)
-            VALUES
-                (?, ?, ?, ?, ?)
-        ";
-
-        $stmt = $conn->prepare($sql);
+        $stmt = $conn->prepare(
+            "CALL spAddCine(?, ?, ?, ?, ?)"
+        );
 
         $stmt->bind_param(
             "sssss",
@@ -96,15 +106,20 @@ function RegistrarCineModel(
             $correo
         );
 
-        $stmt->execute();
+        $resultado = $stmt->execute();
         $stmt->close();
 
-        return true;
+        LimpiarResultadosCineModel($conn);
+
+        return $resultado;
     } finally {
         CloseDB($conn);
     }
 }
 
+/**
+ * Actualiza un cine.
+ */
 function ActualizarCineModel(
     $idCine,
     $nombre,
@@ -116,54 +131,54 @@ function ActualizarCineModel(
     $conn = OpenDB();
 
     try {
-        $sql = "
-            UPDATE cine_tb
-            SET
-                Nombre = ?,
-                Direccion = ?,
-                Ciudad = ?,
-                Telefono = ?,
-                Correo = ?
-            WHERE ID_Cine = ?
-        ";
-
-        $stmt = $conn->prepare($sql);
+        $stmt = $conn->prepare(
+            "CALL spUpdateCine(?, ?, ?, ?, ?, ?)"
+        );
 
         $stmt->bind_param(
-            "sssssi",
+            "isssss",
+            $idCine,
             $nombre,
             $direccion,
             $ciudad,
             $telefono,
-            $correo,
-            $idCine
+            $correo
         );
 
-        $stmt->execute();
+        $resultado = $stmt->execute();
         $stmt->close();
 
-        return true;
+        LimpiarResultadosCineModel($conn);
+
+        return $resultado;
     } finally {
         CloseDB($conn);
     }
 }
 
+/**
+ * Elimina un cine.
+ */
 function EliminarCineModel($idCine)
 {
     $conn = OpenDB();
 
     try {
-        $sql = "
-            DELETE FROM cine_tb
-            WHERE ID_Cine = ?
-        ";
+        $stmt = $conn->prepare(
+            "CALL spDeleteCine(?)"
+        );
 
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $idCine);
-        $stmt->execute();
+        $stmt->bind_param(
+            "i",
+            $idCine
+        );
+
+        $resultado = $stmt->execute();
         $stmt->close();
 
-        return true;
+        LimpiarResultadosCineModel($conn);
+
+        return $resultado;
     } finally {
         CloseDB($conn);
     }

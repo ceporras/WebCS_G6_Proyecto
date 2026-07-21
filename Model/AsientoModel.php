@@ -40,7 +40,7 @@ function ConsultarAsientosModel()
 
         return $asientos;
     } finally {
-        $conn->close();
+        CloseDB($conn);
     }
 }
 
@@ -71,7 +71,7 @@ function ConsultarAsientoPorIdModel($idAsiento)
 
         return $asiento;
     } finally {
-        $conn->close();
+        CloseDB($conn);
     }
 }
 
@@ -81,32 +81,25 @@ function ConsultarSalasParaAsientoModel()
     $salas = [];
 
     try {
-        $sql = "
-            SELECT
-                s.ID_Sala,
-                s.Nombre AS NombreSala,
-                c.Nombre AS NombreCine
-            FROM sala_tb AS s
-            INNER JOIN cine_tb AS c
-                ON s.ID_Cine = c.ID_Cine
-            ORDER BY c.Nombre, s.Nombre
-        ";
+        $stmt = $conn->prepare(
+            "CALL spGetSalas()"
+        );
 
-        $resultado = $conn->query($sql);
-
-        if (!$resultado) {
-            throw new Exception($conn->error);
-        }
+        $stmt->execute();
+        $resultado = $stmt->get_result();
 
         while ($fila = $resultado->fetch_assoc()) {
             $salas[] = $fila;
         }
 
         $resultado->free();
+        $stmt->close();
+
+        LimpiarResultadosAsientoModel($conn);
 
         return $salas;
     } finally {
-        $conn->close();
+        CloseDB($conn);
     }
 }
 
@@ -142,7 +135,7 @@ function RegistrarAsientoModel(
 
         return $resultado;
     } finally {
-        $conn->close();
+       CloseDB($conn);
     }
 }
 
@@ -180,7 +173,7 @@ function ActualizarAsientoModel(
 
         return $resultado;
     } finally {
-        $conn->close();
+        CloseDB($conn);
     }
 }
 
@@ -206,6 +199,6 @@ function EliminarAsientoModel($idAsiento)
 
         return $resultado;
     } finally {
-        $conn->close();
+        CloseDB($conn);
     }
 }
