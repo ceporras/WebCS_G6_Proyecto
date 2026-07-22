@@ -94,7 +94,7 @@ function SeleccionarOpcion($actual, $opcion)
             </p>
 
             <a
-                href="Generos.php"
+                href="AdmGeneros.php"
                 class="btn btn-dorado"
             >
                 Administrar géneros
@@ -514,7 +514,7 @@ function SeleccionarOpcion($actual, $opcion)
                         </button>
 
                         <a
-                            href="Peliculas.php"
+                            href="AdmPeliculas.php"
                             class="btn btn-secondary"
                         >
                             Cancelar
@@ -657,7 +657,7 @@ function SeleccionarOpcion($actual, $opcion)
                                     <div class="d-flex gap-2 flex-wrap">
 
                                         <a
-                                            href="Peliculas.php?editarPelicula=<?= EscaparPelicula(
+                                            href="AdmPeliculas.php?editarPelicula=<?= EscaparPelicula(
                                                 $pelicula['ID_Pelicula']
                                             ) ?>"
                                             class="btn btn-warning btn-sm"

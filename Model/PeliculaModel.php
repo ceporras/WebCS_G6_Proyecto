@@ -77,6 +77,7 @@ function RegistrarGeneroModel($nombre)
     $conn = OpenDB();
 
     try {
+        
         $stmt = $conn->prepare("CALL spAddGenero(?)");
         $stmt->bind_param("s", $nombre);
         $stmt->execute();

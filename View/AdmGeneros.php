@@ -72,7 +72,7 @@ function EscaparGenero($valor)
             </p>
 
             <a
-                href="Peliculas.php"
+                href="AdmPeliculas.php"
                 class="btn btn-dorado"
             >
                 Administrar películas
@@ -165,7 +165,7 @@ function EscaparGenero($valor)
                                 </button>
 
                                 <a
-                                    href="Generos.php"
+                                    href="AdmGeneros.php"
                                     class="btn btn-secondary"
                                 >
                                     Cancelar
@@ -266,7 +266,7 @@ function EscaparGenero($valor)
                                                 class="d-flex justify-content-center gap-2 flex-wrap"
                                             >
                                                 <a
-                                                    href="Generos.php?editarGenero=<?= EscaparGenero(
+                                                    href="AdmGeneros.php?editarGenero=<?= EscaparGenero(
                                                         $genero['ID_Genero']
                                                     ) ?>"
                                                     class="btn btn-warning btn-sm"
