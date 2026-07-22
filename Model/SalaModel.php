@@ -3,6 +3,10 @@
 include_once $_SERVER['DOCUMENT_ROOT']
     . '/WebCS_G6_Proyecto/Model/utilModel.php';
 
+/**
+ * Limpia resultados pendientes después de ejecutar
+ * procedimientos almacenados con MySQLi.
+ */
 function LimpiarResultadosSalaModel($conn)
 {
     while ($conn->more_results()) {
@@ -14,6 +18,44 @@ function LimpiarResultadosSalaModel($conn)
     }
 }
 
+/**
+ * Registra una sala.
+ */
+function RegistrarSalaModel(
+    $idCine,
+    $nombre,
+    $capacidad,
+    $tipoPantalla
+) {
+    $conn = OpenDB();
+
+    try {
+        $stmt = $conn->prepare(
+            "CALL spAddSala(?, ?, ?, ?)"
+        );
+
+        $stmt->bind_param(
+            "isis",
+            $idCine,
+            $nombre,
+            $capacidad,
+            $tipoPantalla
+        );
+
+        $stmt->execute();
+        $stmt->close();
+
+        LimpiarResultadosSalaModel($conn);
+
+        return true;
+    } finally {
+        CloseDB($conn);
+    }
+}
+
+/**
+ * Consulta todas las salas.
+ */
 function ConsultarSalasModel()
 {
     $conn = OpenDB();
@@ -37,6 +79,104 @@ function ConsultarSalasModel()
         LimpiarResultadosSalaModel($conn);
 
         return $salas;
+    } finally {
+        CloseDB($conn);
+    }
+}
+
+/**
+ * Consulta una sala por su ID.
+ */
+function ConsultarSalaPorIdModel($idSala)
+{
+    $conn = OpenDB();
+
+    try {
+        $stmt = $conn->prepare(
+            "CALL spGetSalaById(?)"
+        );
+
+        $stmt->bind_param(
+            "i",
+            $idSala
+        );
+
+        $stmt->execute();
+        $resultado = $stmt->get_result();
+
+        $sala = $resultado->fetch_assoc();
+
+        $resultado->free();
+        $stmt->close();
+
+        LimpiarResultadosSalaModel($conn);
+
+        return $sala ?: null;
+    } finally {
+        CloseDB($conn);
+    }
+}
+
+/**
+ * Actualiza una sala.
+ */
+function ActualizarSalaModel(
+    $idSala,
+    $idCine,
+    $nombre,
+    $capacidad,
+    $tipoPantalla
+) {
+    $conn = OpenDB();
+
+    try {
+        $stmt = $conn->prepare(
+            "CALL spUpdateSala(?, ?, ?, ?, ?)"
+        );
+
+        $stmt->bind_param(
+            "iisis",
+            $idSala,
+            $idCine,
+            $nombre,
+            $capacidad,
+            $tipoPantalla
+        );
+
+        $stmt->execute();
+        $stmt->close();
+
+        LimpiarResultadosSalaModel($conn);
+
+        return true;
+    } finally {
+        CloseDB($conn);
+    }
+}
+
+/**
+ * Elimina una sala.
+ */
+function EliminarSalaModel($idSala)
+{
+    $conn = OpenDB();
+
+    try {
+        $stmt = $conn->prepare(
+            "CALL spDeleteSala(?)"
+        );
+
+        $stmt->bind_param(
+            "i",
+            $idSala
+        );
+
+        $stmt->execute();
+        $stmt->close();
+
+        LimpiarResultadosSalaModel($conn);
+
+        return true;
     } finally {
         CloseDB($conn);
     }

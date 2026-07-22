@@ -69,7 +69,7 @@ function RegistrarSalaController()
         FILTER_VALIDATE_INT
     );
 
-    $tipoPantalla = trim($_POST['TipoPantalla'] ?? '');
+    $tipoPantalla = $_POST['TipoPantalla'] ?? '';
 
     ValidarDatosSalaController(
         $idCine,
@@ -79,10 +79,10 @@ function RegistrarSalaController()
     );
 
     RegistrarSalaModel(
-        $idCine,
-        $nombre,
-        $capacidad,
-        $tipoPantalla
+    $idCine,
+    $nombre,
+    $capacidad,
+    $tipoPantalla
     );
 
     $_SESSION['mensajeSala'] =
