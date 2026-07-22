@@ -372,25 +372,15 @@ function LimpiarResultadosPendientes($conn)
 function ConsultarPeliculasInicioModel()
 {
     $conn = OpenDB();
+    $peliculas = [];
 
     try {
-
-        $stmt = $conn->prepare("
-            SELECT
-                ID_Pelicula,
-                Titulo,
-                Sinopsis,
-                URLPoster
-            FROM pelicula_tb
-            WHERE Estado = 1
-            ORDER BY FechaEstreno DESC
-        ");
+        $stmt = $conn->prepare(
+            "CALL spGetPeliculasInicio()"
+        );
 
         $stmt->execute();
-
         $resultado = $stmt->get_result();
-
-        $peliculas = [];
 
         while ($fila = $resultado->fetch_assoc()) {
             $peliculas[] = $fila;
@@ -399,9 +389,16 @@ function ConsultarPeliculasInicioModel()
         $resultado->free();
         $stmt->close();
 
+        while ($conn->more_results()) {
+            $conn->next_result();
+
+            if ($resultadoPendiente = $conn->store_result()) {
+                $resultadoPendiente->free();
+            }
+        }
+
         return $peliculas;
     } finally {
-
         CloseDB($conn);
     }
 }
