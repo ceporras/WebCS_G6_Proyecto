@@ -194,18 +194,18 @@ function EscaparAsiento($valor)
                                     ?>
 
                                     <option
-                                        value="<?= (int) $sala['ID_Sala'] ?>"
-                                        <?= $salaSeleccionada
-                                            ? 'selected'
-                                            : ''
-                                        ?>
-                                    >
-                                        <?= EscaparAsiento(
-                                            $sala['NombreCine']
-                                            . ' - '
-                                            . $sala['NombreSala']
-                                        ) ?>
-                                    </option>
+                                    value="<?= (int) $sala['ID_Sala'] ?>"
+                                    <?= $salaSeleccionada
+                                        ? 'selected'
+                                        : ''
+                                    ?>
+                                >
+                                    <?= EscaparAsiento(
+                                        ($sala['NombreCine'] ?? '')
+                                        . ' - '
+                                        . ($sala['Nombre'] ?? '')
+                                    ) ?>
+                                </option>
 
                                 <?php endforeach; ?>
 
