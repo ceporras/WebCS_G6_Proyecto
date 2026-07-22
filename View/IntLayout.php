@@ -128,6 +128,30 @@ function Navbar()
                                     Funciones
                                 </a>
                             </li>
+                            <li>
+                                <a
+                                    class="dropdown-item"
+                                    href="/WebCS_G6_Proyecto/View/Cine.php"
+                                >
+                                    Cines
+                                </a>
+                            </li>
+                            <li>
+                                <a
+                                    class="dropdown-item"
+                                    href="/WebCS_G6_Proyecto/View/Sala.php"
+                                >
+                                    Salas
+                                </a>
+                            </li>
+                            <li>
+                                <a
+                                    class="dropdown-item"
+                                    href="/WebCS_G6_Proyecto/View/Asiento.php"
+                                >
+                                    Asientos
+                                </a>
+                            </li>
                         </ul>
 
                     </li>

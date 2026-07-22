@@ -11,7 +11,8 @@ $ID_Cliente = $_SESSION["ID_Cliente"];
 
 //no puedo estar aqui sin login
 if(!$ID_Cliente){
-    header("Location: ../View/index.php");
+
+    header("Location: ../View/IniciarSesion.php");
     exit();
 }
 

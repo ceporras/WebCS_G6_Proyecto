@@ -294,15 +294,15 @@ include_once $_SERVER['DOCUMENT_ROOT']
                                 Seleccione un idioma
                             </option>
 
-                            <option value="Español">
-                                Español
+                            <option value="SUB">
+                                Subtitulada
                             </option>
 
-                            <option value="Inglés">
-                                Inglés
+                            <option value="DOB">
+                                Doblada a Español
                             </option>
 
-                            <option value="Español subtitulado">
+                            <!--<option value="Español subtitulado">
                                 Español subtitulado
                             </option>
 
@@ -312,7 +312,7 @@ include_once $_SERVER['DOCUMENT_ROOT']
 
                             <option value="Doblada al español">
                                 Doblada al español
-                            </option>
+                            </option>-->
                         </select>
 
                     </div>

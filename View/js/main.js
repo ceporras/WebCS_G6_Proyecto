@@ -1,5 +1,5 @@
 // Lista de películas para la cartelera
-const peliculas = [
+/*const peliculas = [
   {
     titulo: "Avatar: El camino del agua",
     categoria: "Acción",
@@ -110,3 +110,4 @@ function filtrarPeliculas(categoria) {
 }
 
 mostrarPeliculas(peliculas);
+*/
