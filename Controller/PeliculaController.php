@@ -6,16 +6,6 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-if (isset($_GET['id_pelicula'])) {
-
-    $ID_Pelicula = (int) $_GET['id_pelicula'];
-    $pelicula = getPelicula($ID_Pelicula)->fetch_assoc();
-    $funciones = getFuncionesByPelicula($ID_Pelicula);
-} else {
-    //si el URL no tiene ID de pelicula, no puedo estar aqui
-    header("Location: ../View/index.php");
-    exit();
-}
 
 //ajustar formato de duracion de pelicula
 function FormatDuracion($minutos) {
@@ -63,7 +53,7 @@ if (isset($_POST['btnRegistrarGenero'])) {
         $_SESSION['TipoMensaje'] = 'danger';
     }
 
-    header('Location: ../View/Generos.php');
+    header('Location: ../View/AdmGeneros.php');
     exit;
 }
 
@@ -93,7 +83,7 @@ if (isset($_POST['btnActualizarGenero'])) {
         $_SESSION['TipoMensaje'] = 'danger';
     }
 
-    header('Location: ../View/Generos.php');
+    header('Location: ../View/AdmGeneros.php');
     exit;
 }
 
@@ -120,7 +110,7 @@ if (isset($_POST['btnEliminarGenero'])) {
         $_SESSION['TipoMensaje'] = 'danger';
     }
 
-    header('Location: ../View/Generos.php');
+    header('Location: ../View/AdmGeneros.php');
     exit;
 }
 
@@ -178,7 +168,7 @@ if (isset($_POST['btnRegistrarPelicula'])) {
         $_SESSION['TipoMensaje'] = 'danger';
     }
 
-    header('Location: ../View/Peliculas.php');
+    header('Location: ../View/AdmPeliculas.php');
     exit;
 }
 
@@ -246,7 +236,7 @@ if (isset($_POST['btnActualizarPelicula'])) {
         $_SESSION['TipoMensaje'] = 'danger';
     }
 
-    header('Location: ../View/Peliculas.php');
+    header('Location: ../View/AdmPeliculas.php');
     exit;
 }
 
@@ -279,7 +269,7 @@ if (isset($_POST['btnCambiarEstadoPelicula'])) {
         $_SESSION['TipoMensaje'] = 'danger';
     }
 
-    header('Location: ../View/Peliculas.php');
+    header('Location: ../View/AdmPeliculas.php');
     exit;
 }
 
@@ -306,6 +296,6 @@ if (isset($_POST['btnEliminarPelicula'])) {
         $_SESSION['TipoMensaje'] = 'danger';
     }
 
-    header('Location: ../View/Peliculas.php');
+    header('Location: ../View/AdmPeliculas.php');
     exit;
 }
