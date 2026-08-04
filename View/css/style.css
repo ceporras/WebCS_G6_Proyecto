@@ -251,3 +251,9 @@ body {
 .redes a:hover {
   background-color: #d8b65a;
 }
+
+
+/*para tabs de lista de funciones*/
+.nav-tabs  {
+    --bs-nav-tabs-link-active-bg: #303030 !important;
+}

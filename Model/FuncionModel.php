@@ -34,6 +34,10 @@ function ConsultarFuncionesModel()
 
         return $funciones;
 
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "ConsultarFuncionesModel", $e);
+        return false;
+
     } finally {
         CloseDB($conn);
     }
@@ -81,6 +85,10 @@ function ConsultarFuncionPorIdModel($idFuncion)
 
         return $funcion ?: null;
 
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "ConsultarFuncionPorIdModel", $e);
+        return false;
+
     } finally {
         CloseDB($conn);
     }
@@ -117,6 +125,10 @@ function ConsultarPeliculasActivasFuncionModel()
 
         return $peliculas;
 
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "ConsultarPeliculasActivasFuncionModel", $e);
+        return false;
+
     } finally {
         CloseDB($conn);
     }
@@ -152,6 +164,10 @@ function ConsultarCinesFuncionModel()
         LimpiarResultadosFuncionModel($conn);
 
         return $cines;
+
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "ConsultarCinesFuncionModel", $e);
+        return false;
 
     } finally {
         CloseDB($conn);
@@ -203,6 +219,10 @@ function ConsultarSalasPorCineFuncionModel($idCine)
         LimpiarResultadosFuncionModel($conn);
 
         return $salas;
+
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "ConsultarSalasPorCineFuncionModel", $e);
+        return false;
 
     } finally {
         CloseDB($conn);
@@ -280,6 +300,10 @@ function RegistrarFuncionModel(
         }
 
         return $respuesta;
+
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "RegistrarFuncionModel", $e);
+        return false;
 
     } finally {
         CloseDB($conn);
@@ -368,6 +392,10 @@ function ActualizarFuncionModel(
 
         return $respuesta;
 
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "ActualizarFuncionModel", $e);
+        return false;
+
     } finally {
         CloseDB($conn);
     }
@@ -421,6 +449,10 @@ function EliminarFuncionModel($idFuncion)
 
         return $respuesta;
 
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "EliminarFuncionModel", $e);
+        return false;
+        
     } finally {
         CloseDB($conn);
     }

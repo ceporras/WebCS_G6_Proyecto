@@ -4,22 +4,33 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/WebCS_G6_Proyecto/Model/UtilModel.php
 
 function getFuncionesByPelicula($ID_Pelicula)
 {
-    $conn = OpenDB();
-    $sql = "CALL sp_getFuncionesByPelicula('$ID_Pelicula')";
-    $result = mysqli_query($conn, $sql);
-    CloseDB($conn);
-    return $result;
+    try {
+        $conn = OpenDB();
+        $sql = "CALL sp_getFuncionesByPelicula('$ID_Pelicula')";
+        $result = mysqli_query($conn, $sql);
+        CloseDB($conn);
+        return $result;
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "AddOrden", $e);
+        return false;
+    }
 }
 
 function getPelicula($ID_Pelicula)
 {
+    try {
 
-    $conn = OpenDB();
-    $sql = "CALL spGetPelicula('$ID_Pelicula')";
-    $result = mysqli_query($conn, $sql);
-    CloseDB($conn);
-    return $result;
+        $conn = OpenDB();
+        $sql = "CALL spGetPelicula('$ID_Pelicula')";
+        $result = mysqli_query($conn, $sql);
+        CloseDB($conn);
+        return $result;
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "AddOrden", $e);
+        return false;
+    }
 }
+
 
 
 /* CRUD GÉNEROS */
@@ -43,6 +54,9 @@ function ConsultarGenerosModel()
         $stmt->close();
 
         return $generos;
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "ConsultarGenerosModel", $e);
+        return false;
     } finally {
         CloseDB($conn);
     }
@@ -67,6 +81,9 @@ function ConsultarGeneroPorIdModel($idGenero)
         $stmt->close();
 
         return $genero;
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "AddOConsultarGeneroPorIdModelrden", $e);
+        return false;
     } finally {
         CloseDB($conn);
     }
@@ -77,13 +94,16 @@ function RegistrarGeneroModel($nombre)
     $conn = OpenDB();
 
     try {
-        
+
         $stmt = $conn->prepare("CALL spAddGenero(?)");
         $stmt->bind_param("s", $nombre);
         $stmt->execute();
         $stmt->close();
 
         return true;
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "RegistrarGeneroModel", $e);
+        return false;
     } finally {
         CloseDB($conn);
     }
@@ -100,6 +120,9 @@ function ActualizarGeneroModel($idGenero, $nombre)
         $stmt->close();
 
         return true;
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "ActualizarGeneroModel", $e);
+        return false;
     } finally {
         CloseDB($conn);
     }
@@ -116,6 +139,9 @@ function EliminarGeneroModel($idGenero)
         $stmt->close();
 
         return true;
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "EliminarGeneroModel", $e);
+        return false;
     } finally {
         CloseDB($conn);
     }
@@ -142,6 +168,9 @@ function ConsultarPeliculasModel()
         $stmt->close();
 
         return $peliculas;
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "ConsultarPeliculasModel", $e);
+        return false;
     } finally {
         CloseDB($conn);
     }
@@ -183,6 +212,9 @@ function ConsultarPeliculaPorIdModel($idPelicula)
         $pelicula['GenerosSeleccionados'] = $generos;
 
         return $pelicula;
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "ConsultarPeliculaPorIdModel", $e);
+        return false;
     } finally {
         CloseDB($conn);
     }
@@ -266,9 +298,9 @@ function RegistrarPeliculaModel(
         $conn->commit();
 
         return $idPelicula;
-    } catch (Throwable $e) {
-        $conn->rollback();
-        throw $e;
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "RegistrarPeliculaModel", $e);
+        return false;
     } finally {
         CloseDB($conn);
     }
@@ -313,6 +345,9 @@ function ActualizarPeliculaModel(
         $stmt->close();
 
         return true;
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "ActualizarPeliculaModel", $e);
+        return false;
     } finally {
         CloseDB($conn);
     }
@@ -338,6 +373,9 @@ function CambiarEstadoPeliculaModel($idPelicula, $estado)
         $stmt->close();
 
         return true;
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "CambiarEstadoPeliculaModel", $e);
+        return false;
     } finally {
         CloseDB($conn);
     }
@@ -354,6 +392,9 @@ function EliminarPeliculaModel($idPelicula)
         $stmt->close();
 
         return true;
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "EliminarPeliculaModel", $e);
+        return false;
     } finally {
         CloseDB($conn);
     }
@@ -399,6 +440,9 @@ function ConsultarPeliculasInicioModel()
         }
 
         return $peliculas;
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "ConsultarPeliculasInicioModel", $e);
+        return false;
     } finally {
         CloseDB($conn);
     }

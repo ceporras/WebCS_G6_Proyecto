@@ -41,6 +41,11 @@ function ConsultarCinesModel()
         LimpiarResultadosCineModel($conn);
 
         return $cines;
+        
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "ConsultarCinesModel", $e);
+        return false;
+
     } finally {
         CloseDB($conn);
     }
@@ -75,6 +80,11 @@ function ConsultarCinePorIdModel($idCine)
         LimpiarResultadosCineModel($conn);
 
         return $cine;
+
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "ConsultarCinePorIdModel", $e);
+        return false;
+
     } finally {
         CloseDB($conn);
     }
@@ -112,6 +122,11 @@ function RegistrarCineModel(
         LimpiarResultadosCineModel($conn);
 
         return $resultado;
+
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "RegistrarCineModel", $e);
+        return false;
+
     } finally {
         CloseDB($conn);
     }
@@ -151,6 +166,11 @@ function ActualizarCineModel(
         LimpiarResultadosCineModel($conn);
 
         return $resultado;
+
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "ActualizarCineModel", $e);
+        return false;
+
     } finally {
         CloseDB($conn);
     }
@@ -179,6 +199,11 @@ function EliminarCineModel($idCine)
         LimpiarResultadosCineModel($conn);
 
         return $resultado;
+
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "EliminarCineModel", $e);
+        return false;
+
     } finally {
         CloseDB($conn);
     }

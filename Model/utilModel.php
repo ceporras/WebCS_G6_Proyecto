@@ -15,4 +15,33 @@
         $conn -> close();
     }
 
+
+    function addLog($timestamp,$level,$component,$message)
+{
+    try {
+        $conn = OpenDB();
+        $sql = "CALL sp_AddLog('$timestamp','$level','$component','$message')";
+        $result = $conn->query($sql);
+
+        CloseDB($conn);
+        return $result;
+
+    } catch (Exception $e) {
+
+        echo "DB error: $e";
+        return false;
+    }
+}
+
+    function timestamp(){
+        //funcion para agregar fecha en formato especifico para agregar a errores del DB
+        $date = new DateTime();
+        $date->setTimezone(new DateTimeZone('-6'));
+        $formattedTime = $date->format('Y-m-d H:i:s');
+        return $formattedTime;
+    }
+
+
+    
+
     

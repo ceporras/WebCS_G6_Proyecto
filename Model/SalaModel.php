@@ -48,6 +48,11 @@ function RegistrarSalaModel(
         LimpiarResultadosSalaModel($conn);
 
         return true;
+
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "RegistrarSalaModel", $e);
+        return false;
+
     } finally {
         CloseDB($conn);
     }
@@ -79,6 +84,11 @@ function ConsultarSalasModel()
         LimpiarResultadosSalaModel($conn);
 
         return $salas;
+
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "ConsultarSalasModel", $e);
+        return false;
+
     } finally {
         CloseDB($conn);
     }
@@ -112,6 +122,11 @@ function ConsultarSalaPorIdModel($idSala)
         LimpiarResultadosSalaModel($conn);
 
         return $sala ?: null;
+
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "ConsultarSalaPorIdModel", $e);
+        return false;
+
     } finally {
         CloseDB($conn);
     }
@@ -149,6 +164,11 @@ function ActualizarSalaModel(
         LimpiarResultadosSalaModel($conn);
 
         return true;
+
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "ActualizarSalaModel", $e);
+        return false;
+
     } finally {
         CloseDB($conn);
     }
@@ -177,6 +197,11 @@ function EliminarSalaModel($idSala)
         LimpiarResultadosSalaModel($conn);
 
         return true;
+
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "EliminarSalaModel", $e);
+        return false;
+
     } finally {
         CloseDB($conn);
     }
@@ -208,6 +233,11 @@ function ConsultarCinesParaSalaModel()
         LimpiarResultadosSalaModel($conn);
 
         return $cines;
+
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "ConsultarCinesParaSalaModel", $e);
+        return false;
+        
     } finally {
         CloseDB($conn);
     }

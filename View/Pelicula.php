@@ -1,13 +1,13 @@
 <?php
 
 include_once $_SERVER['DOCUMENT_ROOT']
-. '/WebCS_G6_Proyecto/View/ExtLayout.php';
+    . '/WebCS_G6_Proyecto/View/ExtLayout.php';
 
 include_once $_SERVER['DOCUMENT_ROOT']
-. '/WebCS_G6_Proyecto/View/IntLayout.php';
+    . '/WebCS_G6_Proyecto/View/IntLayout.php';
 
 include_once $_SERVER['DOCUMENT_ROOT']
-. '/WebCS_G6_Proyecto/Controller/PeliculaController.php';
+    . '/WebCS_G6_Proyecto/Controller/PeliculaController.php';
 
 
 if (isset($_GET['id_pelicula'])) {
@@ -70,46 +70,99 @@ if (isset($_GET['id_pelicula'])) {
 
                     <h2>Horarios Disponibles</h2>
 
-                    <h6>Subtitulada</h6>
-                    <div class="d-flex flex-wrap gap-2 mb-4">
+                    <?php
+                    //cargar los dias en los que hay funciones para el UL
+                    $funcionesPorDia = [];
+                    foreach ($funciones as $funcion) {
+                        $fecha = date('Y-m-d', strtotime($funcion['HoraInicio']));
+                        $funcionesPorDia[$fecha][] = $funcion;
+                    }
+                    ksort($funcionesPorDia);
+                    if (is_object($funciones) && $funciones->num_rows == 0):?>
+                        <h5 class="mb-4">Lo sentimos, no hay horarios disponibles para esta pelicula en este momento</h5>
+                    <?php endif;    
+                    ?>
 
-                        <?php foreach ($funciones as $funcion): ?>
+                    <ul class="nav nav-tabs mb-3" id="funcionesTabs" role="tablist">
+                        <?php
+                        $first = true;
+                        foreach ($funcionesPorDia as $fecha => $lista):
+                        ?>
+                            <li class="nav-item " role="presentation">
+                                <button
+                                    class="nav-link <?= $first ? 'active' : '' ?>"
+                                    id="tab-<?= $fecha ?>"
+                                    data-bs-toggle="tab"
+                                    data-bs-target="#content-<?= $fecha ?>"
+                                    type="button"
+                                    role="tab">
+                                    <?= date('D j M', strtotime($fecha)) ?>
+                                </button>
+                            </li>
+                        <?php
+                            $first = false;
+                        endforeach;
+                        ?>
+                    </ul>
 
-                            <?php if ($funcion['Idioma'] == 'SUB'): ?>
+                    <div class="tab-content">
 
-                                <a
-                                    href="Funcion.php?funcion=<?= $funcion['ID_Funcion'] ?>"
-                                    class="btn btn-outline-primary">
+                        <?php
+                        $first = true;
+                        foreach ($funcionesPorDia as $fecha => $lista):
+                        ?>
 
-                                    <?= date('g:i A', strtotime($funcion['HoraInicio'])) ?>
+                            <div
+                                class="tab-pane fade <?= $first ? 'show active' : '' ?>"
+                                id="content-<?= $fecha ?>"
+                                role="tabpanel">
 
-                                </a>
+                                <h6>Subtitulada</h6>
+                                <div class="d-flex flex-wrap gap-2 mb-4">
 
-                            <?php endif; ?>
+                                    <?php foreach ($lista as $funcion): ?>
 
-                        <?php endforeach; ?>
+                                        <?php if ($funcion['Idioma'] == 'SUB'): ?>
+
+
+                                            <a
+                                                href="Funcion.php?funcion=<?= $funcion['ID_Funcion'] ?>"
+                                                class="btn btn-outline-primary">
+
+                                                <?= date('g:i A', strtotime($funcion['HoraInicio'])) ?>
+
+                                            </a>
+                                        <?php endif; ?>
+                                    <?php endforeach; ?>
+                                </div>
+
+                                <h6>Doblada</h6>
+                                <div class="d-flex flex-wrap gap-2 mb-4">
+                                    <?php foreach ($lista as $funcion): ?>
+                                        <?php if ($funcion['Idioma'] == 'DOB'): ?>
+
+                                            <a
+                                                href="Funcion.php?funcion=<?= $funcion['ID_Funcion'] ?>"
+                                                class="btn btn-outline-primary">
+
+                                                <?= date('g:i A', strtotime($funcion['HoraInicio'])) ?>
+
+                                            </a>
+                                        <?php endif; ?>
+                                    <?php endforeach; ?>
+
+
+
+                                </div>
+
+                            </div>
+
+                        <?php
+                            $first = false;
+                        endforeach;
+                        ?>
 
                     </div>
-                    <h6>Doblada</h6>
-                    <div class="d-flex flex-wrap gap-2 mb-4">
-                        <?php foreach ($funciones as $funcion): ?>
-
-                            <?php if ($funcion['Idioma'] == 'DOB'): ?>
-
-                                <a
-                                    href="Funcion.php?funcion=<?= $funcion['ID_Funcion'] ?>"
-                                    class="btn btn-outline-primary">
-
-                                    <?= date('g:i A', strtotime($funcion['HoraInicio'])) ?>
-
-                                </a>
-
-                            <?php endif; ?>
-
-                        <?php endforeach; ?>
-                    </div>
-
-                    
 
                 </div>
             </div>

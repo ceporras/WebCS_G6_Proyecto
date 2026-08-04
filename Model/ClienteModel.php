@@ -19,8 +19,8 @@ function IniciarSesionModel($correo, $contrasenna)
         CloseDB($conn);
         return $datos;
     } catch (Exception $e) {
-        echo $e;
-        return null;
+        addLog(timestamp(), "ERROR", "IniciarSesionModel", $e);
+        return false;
     }
 }
 
@@ -41,8 +41,8 @@ function ValidarCorreoModel($correo)
         CloseDB($conn);
         return $datos;
     } catch (Exception $e) {
-        echo $e;
-        return null;
+        addLog(timestamp(), "ERROR", "ValidarCorreoModel", $e);
+        return false;
     }
 }
 
@@ -60,8 +60,8 @@ function ActualizarContrasennaModel($idCliente, $contrasenna)
 
         CloseDB($conn);
         return $response;
-    } catch (Exception $e) {
-        echo $e;
+    }  catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "ActualizarContrasennaModel", $e);
         return false;
     }
 }
@@ -94,10 +94,8 @@ function RegistrarUsuarioModel(
 
         return $response;
 
-    }catch(Exception $e){
-
-        echo $e;
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "RegistrarUsuarioModel", $e);
         return false;
-
     }
 }

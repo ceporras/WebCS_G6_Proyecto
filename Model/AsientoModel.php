@@ -39,6 +39,11 @@ function ConsultarAsientosModel()
         LimpiarResultadosAsientoModel($conn);
 
         return $asientos;
+
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "ConsultarAsientosModel", $e);
+        return false;
+
     } finally {
         CloseDB($conn);
     }
@@ -70,6 +75,11 @@ function ConsultarAsientoPorIdModel($idAsiento)
         LimpiarResultadosAsientoModel($conn);
 
         return $asiento;
+
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "ConsultarAsientoPorIdModel", $e);
+        return false;
+
     } finally {
         CloseDB($conn);
     }
@@ -98,6 +108,11 @@ function ConsultarSalasParaAsientoModel()
         LimpiarResultadosAsientoModel($conn);
 
         return $salas;
+
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "ConsultarSalasParaAsientoModel", $e);
+        return false;
+
     } finally {
         CloseDB($conn);
     }
@@ -134,8 +149,13 @@ function RegistrarAsientoModel(
         LimpiarResultadosAsientoModel($conn);
 
         return $resultado;
+
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "RegistrarAsientoModel", $e);
+        return false;
+
     } finally {
-       CloseDB($conn);
+        CloseDB($conn);
     }
 }
 
@@ -172,6 +192,11 @@ function ActualizarAsientoModel(
         LimpiarResultadosAsientoModel($conn);
 
         return $resultado;
+
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "ActualizarAsientoModel", $e);
+        return false;
+
     } finally {
         CloseDB($conn);
     }
@@ -198,6 +223,11 @@ function EliminarAsientoModel($idAsiento)
         LimpiarResultadosAsientoModel($conn);
 
         return $resultado;
+
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "EliminarAsientoModel", $e);
+        return false;
+
     } finally {
         CloseDB($conn);
     }

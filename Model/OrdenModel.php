@@ -14,10 +14,8 @@ function AddOrden($ID_Cliente, $ID_Promocion, $Estado, $cantidadEntradas, $Subto
 
         CloseDB($conn);
         return $ID_Orden;
-
     } catch (Exception $e) {
-        //no error handling
-        echo "DB error: $e";
+        addLog(timestamp(), "ERROR", "AddOrden", $e);
         return false;
     }
 }
@@ -32,75 +30,94 @@ function AddBoleto($ID_Orden, $ID_Funcion, $ID_Asiento, $TipoBoleto)
         CloseDB($conn);
         return $response;
     } catch (Exception $e) {
-        
-        echo "DB error: $e";
+        addLog(timestamp(), "ERROR", "AddBoleto", $e);
         return false;
     }
 }
 
 function GetBoletosByOrden($ID_Orden)
 {
-    $conn = OpenDB();
-    $sql = "CALL sp_GetBoletosByOrden('$ID_Orden')";
-    $result = mysqli_query($conn, $sql);
-    CloseDB($conn);
-    return $result;
+    try {
+        $conn = OpenDB();
+        $sql = "CALL sp_GetBoletosByOrden('$ID_Orden')";
+        $result = mysqli_query($conn, $sql);
+        CloseDB($conn);
+        return $result;
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "GetBoletosByOrden", $e);
+    }
 }
-
-
 
 
 function GetAsientoByFuncion($ID_Funcion)
 {
-    $conn = OpenDB();
+    try {
+        $conn = OpenDB();
+        $sql = "CALL sp_GetAsientoByFuncion('$ID_Funcion')";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $ID_Funcion);
+        $stmt->execute();
 
-    $sql = "CALL sp_GetAsientoByFuncion('$ID_Funcion')";
+        $result = $stmt->get_result();
 
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $ID_Funcion);
-    $stmt->execute();
-
-    $result = $stmt->get_result();
-
-    CloseDB($conn);
-    return $result;
+        CloseDB($conn);
+        return $result;
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "GetAsientoByFuncion", $e);
+    }
 }
 
 
 function GetAsientoLibreByFuncion($ID_Funcion)
 {
-    $conn = OpenDB();
-    $sql = "CALL sp_GetAsientoLibreByFuncion('$ID_Funcion')";
-    $result = mysqli_query($conn, $sql);
-    CloseDB($conn);
-    return $result;
+    try {
+        $conn = OpenDB();
+        $sql = "CALL sp_GetAsientoLibreByFuncion('$ID_Funcion')";
+        $result = mysqli_query($conn, $sql);
+        CloseDB($conn);
+        return $result;
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "GetAsientoLibreByFuncion", $e);
+    }
 }
 
 function GetPrecioOfFuncion($ID_Funcion)
 {
-    $conn = OpenDB();
-    $sql = "CALL sp_GetPrecioOfFuncion('$ID_Funcion')";
-    $result = mysqli_query($conn, $sql);
-    CloseDB($conn);
-    return $result;
+    try {
+        $conn = OpenDB();
+        $sql = "CALL sp_GetPrecioOfFuncion('$ID_Funcion')";
+        $result = mysqli_query($conn, $sql);
+        CloseDB($conn);
+        return $result;
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "GetPrecioOfFuncion", $e);
+    }
 }
 
 function GetOrdenById($ID_Orden)
 {
-    $conn = OpenDB();
-    $sql = "CALL sp_GetOrdenById('$ID_Orden')";
-    $result = mysqli_query($conn, $sql);
-    CloseDB($conn);
-    return $result;
+    try {
+        $conn = OpenDB();
+        $sql = "CALL sp_GetOrdenById('$ID_Orden')";
+        $result = mysqli_query($conn, $sql);
+        CloseDB($conn);
+        return $result;
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "GetOrdenById", $e);
+    }
 }
 
 function GetFuncionById($ID_Funcion)
 {
-    $conn = OpenDB();
-    $sql = "CALL sp_GetFuncionById('$ID_Funcion')";
-    $result = mysqli_query($conn, $sql);
-    CloseDB($conn);
-    return $result;
+    try {
+        $conn = OpenDB();
+        $sql = "CALL sp_GetFuncionById('$ID_Funcion')";
+        $result = mysqli_query($conn, $sql);
+        CloseDB($conn);
+        return $result;
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "GetFuncionById", $e);
+    }
 }
 
 
@@ -114,8 +131,8 @@ function ActualizarEstadoOrden($ID_Orden, $Estado)
         CloseDB($conn);
         return $response;
     } catch (Exception $e) {
-        
-        echo "DB error: $e";
+
+        addLog(timestamp(), "ERROR", "ActualizarEstadoOrden", $e);
         return false;
     }
 }
