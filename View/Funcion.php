@@ -3,6 +3,12 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/WebCS_G6_Proyecto/View/IntLayout.php'
 include_once $_SERVER['DOCUMENT_ROOT'] . '/WebCS_G6_Proyecto/View/ExtLayout.php';
 include_once $_SERVER['DOCUMENT_ROOT'] . '/WebCS_G6_Proyecto/Controller/OrdenController.php';
 [$ID_Funcion, $asientosLibres] = CargarFuncion();
+
+if (!isset($_GET['funcion'])) {
+    header("Location: ../View/index.php");
+    exit();
+    //si el URL no tiene ID de funcion, no puedo estar aqui
+}
 ?>
 
 

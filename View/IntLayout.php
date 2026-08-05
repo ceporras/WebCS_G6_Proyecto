@@ -155,31 +155,41 @@ function Navbar()
                         </ul>
 
                     </li>
+                    ';
+    //si estoy logueado, tengo boton de salir, sino de loguear
+    if (isset($_SESSION["ID_Cliente"])) {
 
-                    <li class="nav-item ms-lg-3">
-                        <a
-                            class="login-icon"
-                            href="/WebCS_G6_Proyecto/View/IniciarSesion.php"
-                            title="Iniciar sesión"
-                            aria-label="Iniciar sesión"
-                        >
-                            👤
-                        </a>
-                    </li>
-                    <li class="nav-item ms-lg-3">
-                    <form action="/WebCS_G6_Proyecto/Controller/ClienteController.php" method="POST">
-                        <button id="btnSalir" name="btnSalir" type="submit" class="btn btn-sm bg-transparent border-0 text-start py-1 fs-6">
-                            <i class="fa-solid fa-right-from-bracket me-2"></i>
-                        Salir
-                        </button>
-                           </form>
-                              </li>
+        echo '
+    <li class="nav-item ms-lg-3">
+        <form action="/WebCS_G6_Proyecto/Controller/ClienteController.php" method="POST">
+            <button id="btnSalir" name="btnSalir" type="submit"
+                class="btn btn-sm bg-transparent border-0 text-start py-1 fs-6 nav-link">
+                <i class="fa-solid fa-right-from-bracket me-2"></i>
+                Cerrar Sesión
+            </button>
+        </form>
+    </li>';
+    } else {
 
+        echo '
+    <li class="nav-item ms-lg-3">
+        <a
+            class="text-decoration-none text-reset nav-link"
+            href="/WebCS_G6_Proyecto/View/IniciarSesion.php"
+            title="Iniciar sesión"
+            aria-label="Iniciar Sesión">
+            Iniciar Sesión
+        </a>
+    </li>';
+    }
+
+        echo '
                 </ul>
             </div>
         </div>
     </nav>
     ';
+    
 }
 
 function Footer()
