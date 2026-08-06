@@ -48,7 +48,7 @@ function ProcesarSalaController()
     }
 
     header(
-        'Location: /WebCS_G6_Proyecto/View/Sala.php'
+        'Location: /WebCS_G6_Proyecto/View/AdmSalas.php'
     );
     exit;
 }

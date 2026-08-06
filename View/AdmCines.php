@@ -78,14 +78,14 @@ function EscaparCine($valor)
 
         <div class="d-flex gap-2">
             <a
-                href="/WebCS_G6_Proyecto/View/Sala.php"
+                href="/WebCS_G6_Proyecto/View/AdmSalas.php"
                 class="btn btn-outline-warning"
             >
                 Administrar salas
             </a>
 
             <a
-                href="/WebCS_G6_Proyecto/View/Asiento.php"
+                href="/WebCS_G6_Proyecto/View/AdmAsientos.php"
                 class="btn btn-outline-warning"
             >
                 Administrar asientos
@@ -297,7 +297,7 @@ function EscaparCine($valor)
                             <?php if ($cineEditar): ?>
 
                                 <a
-                                    href="/WebCS_G6_Proyecto/View/Cine.php"
+                                    href="/WebCS_G6_Proyecto/View/AdmCines.php"
                                     class="btn btn-secondary"
                                 >
                                     Cancelar
@@ -371,7 +371,7 @@ function EscaparCine($valor)
                                     <td class="text-nowrap">
 
                                         <a
-                                            href="/WebCS_G6_Proyecto/View/Cine.php?editarCine=<?= EscaparCine(
+                                            href="/WebCS_G6_Proyecto/View/AdmCines.php?editarCine=<?= EscaparCine(
                                                 $cine['ID_Cine']
                                             ) ?>"
                                             class="btn btn-warning btn-sm"

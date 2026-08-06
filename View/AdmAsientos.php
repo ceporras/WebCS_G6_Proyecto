@@ -9,31 +9,40 @@ include_once $_SERVER['DOCUMENT_ROOT']
     . '/WebCS_G6_Proyecto/View/ExtLayout.php';
 
 include_once $_SERVER['DOCUMENT_ROOT']
-    . '/WebCS_G6_Proyecto/Controller/SalaController.php';
+    . '/WebCS_G6_Proyecto/Controller/AsientoController.php';
 
-ProcesarSalaController();
+ProcesarAsientoController();
 
-$salas = ObtenerSalasController();
-$cines = ObtenerCinesParaSalaController();
+$asientos = ObtenerAsientosController();
+$salas = ObtenerSalasParaAsientoController();
 
-$salaEditar = null;
+$asientoEditar = null;
 
 if (
     isset($_GET['editar']) &&
     filter_var($_GET['editar'], FILTER_VALIDATE_INT)
 ) {
-    $salaEditar = ObtenerSalaPorIdController(
+    $asientoEditar = ObtenerAsientoPorIdController(
         (int) $_GET['editar']
     );
 }
 
-$mensaje = $_SESSION['mensajeSala'] ?? '';
-$tipoMensaje = $_SESSION['tipoMensajeSala'] ?? 'info';
+$mensaje = $_SESSION['mensajeAsiento'] ?? '';
+$tipoMensaje = $_SESSION['tipoMensajeAsiento'] ?? 'info';
 
 unset(
-    $_SESSION['mensajeSala'],
-    $_SESSION['tipoMensajeSala']
+    $_SESSION['mensajeAsiento'],
+    $_SESSION['tipoMensajeAsiento']
 );
+
+function EscaparAsiento($valor)
+{
+    return htmlspecialchars(
+        (string) $valor,
+        ENT_QUOTES,
+        'UTF-8'
+    );
+}
 ?>
 
 <!DOCTYPE html>
@@ -47,7 +56,7 @@ unset(
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Administración de salas</title>
+    <title>Administración de asientos</title>
 
     <?php ImportCSS(); ?>
 </head>
@@ -67,26 +76,28 @@ unset(
                gap-3 mb-4"
     >
         <div>
-            <h1 class="mb-1">Administración de salas</h1>
+            <h1 class="mb-1">
+                Administración de asientos
+            </h1>
 
             <p class="text-secondary mb-0">
-                Registra, modifica y elimina las salas de cada cine.
+                Registra, modifica y elimina los asientos de cada sala.
             </p>
         </div>
 
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-2 flex-wrap">
             <a
-                href="/WebCS_G6_Proyecto/View/Cine.php"
+                href="/WebCS_G6_Proyecto/View/AdmSalas.php"
                 class="btn btn-outline-warning"
             >
-                Administrar cines
+                Administrar salas
             </a>
 
             <a
-                href="/WebCS_G6_Proyecto/View/Asiento.php"
+                href="/WebCS_G6_Proyecto/View/AdmCines.php"
                 class="btn btn-outline-warning"
             >
-                Administrar asientos
+                Administrar cines
             </a>
         </div>
     </div>
@@ -94,11 +105,11 @@ unset(
     <?php if ($mensaje !== ''): ?>
 
         <div
-            class="alert alert-<?= htmlspecialchars($tipoMensaje) ?>
+            class="alert alert-<?= EscaparAsiento($tipoMensaje) ?>
                    alert-dismissible fade show"
             role="alert"
         >
-            <?= htmlspecialchars($mensaje) ?>
+            <?= EscaparAsiento($mensaje) ?>
 
             <button
                 type="button"
@@ -114,19 +125,19 @@ unset(
 
         <div class="card-header">
             <strong>
-                <?= $salaEditar
-                    ? 'Editar sala'
-                    : 'Registrar sala'
+                <?= $asientoEditar
+                    ? 'Editar asiento'
+                    : 'Registrar asiento'
                 ?>
             </strong>
         </div>
 
         <div class="card-body">
 
-            <?php if (empty($cines)): ?>
+            <?php if (empty($salas)): ?>
 
                 <div class="alert alert-warning mb-0">
-                    Primero debes registrar al menos un cine.
+                    Primero debes registrar al menos una sala.
                 </div>
 
             <?php else: ?>
@@ -136,18 +147,18 @@ unset(
                     <input
                         type="hidden"
                         name="accion"
-                        value="<?= $salaEditar
+                        value="<?= $asientoEditar
                             ? 'actualizar'
                             : 'registrar'
                         ?>"
                     >
 
-                    <?php if ($salaEditar): ?>
+                    <?php if ($asientoEditar): ?>
 
                         <input
                             type="hidden"
-                            name="ID_Sala"
-                            value="<?= (int) $salaEditar['ID_Sala'] ?>"
+                            name="ID_Asiento"
+                            value="<?= (int) $asientoEditar['ID_Asiento'] ?>"
                         >
 
                     <?php endif; ?>
@@ -157,158 +168,141 @@ unset(
                         <div class="col-md-6 mb-3">
 
                             <label
-                                for="ID_Cine"
+                                for="ID_Sala"
                                 class="form-label"
                             >
-                                Cine
+                                Sala
                             </label>
 
                             <select
-                                name="ID_Cine"
-                                id="ID_Cine"
+                                name="ID_Sala"
+                                id="ID_Sala"
                                 class="form-select"
                                 required
                             >
                                 <option value="">
-                                    Seleccione un cine
+                                    Seleccione una sala
                                 </option>
 
-                                <?php foreach ($cines as $cine): ?>
+                                <?php foreach ($salas as $sala): ?>
 
                                     <?php
-                                    $cineSeleccionado =
-                                        $salaEditar &&
-                                        (int) $salaEditar['ID_Cine'] ===
-                                        (int) $cine['ID_Cine'];
+                                    $salaSeleccionada =
+                                        $asientoEditar &&
+                                        (int) $asientoEditar['ID_Sala'] ===
+                                        (int) $sala['ID_Sala'];
                                     ?>
 
                                     <option
-                                        value="<?= (int) $cine['ID_Cine'] ?>"
-                                        <?= $cineSeleccionado
-                                            ? 'selected'
-                                            : ''
-                                        ?>
-                                    >
-                                        <?= htmlspecialchars(
-                                            $cine['Nombre']
-                                        ) ?>
-                                    </option>
+                                    value="<?= (int) $sala['ID_Sala'] ?>"
+                                    <?= $salaSeleccionada
+                                        ? 'selected'
+                                        : ''
+                                    ?>
+                                >
+                                    <?= EscaparAsiento(
+                                        ($sala['NombreCine'] ?? '')
+                                        . ' - '
+                                        . ($sala['Nombre'] ?? '')
+                                    ) ?>
+                                </option>
 
                                 <?php endforeach; ?>
 
                             </select>
+
                         </div>
 
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-2 mb-3">
 
                             <label
-                                for="Nombre"
+                                for="Fila"
                                 class="form-label"
                             >
-                                Nombre de la sala
+                                Fila
                             </label>
 
                             <input
                                 type="text"
-                                name="Nombre"
-                                id="Nombre"
+                                name="Fila"
+                                id="Fila"
                                 class="form-control"
-                                maxlength="45"
+                                maxlength="10"
                                 required
-                                placeholder="Ejemplo: Sala 1"
-                                value="<?= htmlspecialchars(
-                                    $salaEditar['Nombre'] ?? ''
+                                placeholder="Ejemplo: A"
+                                value="<?= EscaparAsiento(
+                                    $asientoEditar['Fila'] ?? ''
                                 ) ?>"
                             >
 
                         </div>
 
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-2 mb-3">
 
                             <label
-                                for="Capacidad"
+                                for="Numero"
                                 class="form-label"
                             >
-                                Capacidad
+                                Número
                             </label>
 
                             <input
                                 type="number"
-                                name="Capacidad"
-                                id="Capacidad"
+                                name="Numero"
+                                id="Numero"
                                 class="form-control"
                                 min="1"
                                 required
-                                placeholder="Ejemplo: 100"
-                                value="<?= htmlspecialchars(
-                                    $salaEditar['Capacidad'] ?? ''
+                                placeholder="1"
+                                value="<?= EscaparAsiento(
+                                    $asientoEditar['Numero'] ?? ''
                                 ) ?>"
                             >
 
                         </div>
 
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-2 mb-3">
 
                             <label
-                                for="TipoPantalla"
+                                for="TipoAsiento"
                                 class="form-label"
                             >
-                                Tipo de pantalla
+                                Tipo
                             </label>
 
                             <?php
                             $tipoActual =
-                                $salaEditar['TipoPantalla'] ?? '';
+                                $asientoEditar['TipoAsiento'] ?? '';
                             ?>
 
                             <select
-                                name="TipoPantalla"
-                                id="TipoPantalla"
+                                name="TipoAsiento"
+                                id="TipoAsiento"
                                 class="form-select"
                                 required
                             >
                                 <option value="">
-                                    Seleccione una opción
+                                    Seleccione
                                 </option>
 
                                 <option
-                                    value="2D"
-                                    <?= $tipoActual === '2D'
+                                    value="Regular"
+                                    <?= $tipoActual === 'Regular'
                                         ? 'selected'
                                         : ''
                                     ?>
                                 >
-                                    2D
+                                    Regular
                                 </option>
 
                                 <option
-                                    value="3D"
-                                    <?= $tipoActual === '3D'
+                                    value="Preferencial"
+                                    <?= $tipoActual === 'Preferencial'
                                         ? 'selected'
                                         : ''
                                     ?>
                                 >
-                                    3D
-                                </option>
-
-                                <option
-                                    value="IMAX"
-                                    <?= $tipoActual === 'IMAX'
-                                        ? 'selected'
-                                        : ''
-                                    ?>
-                                >
-                                    IMAX
-                                </option>
-
-                                <option
-                                    value="4DX"
-                                    <?= $tipoActual === '4DX'
-                                        ? 'selected'
-                                        : ''
-                                    ?>
-                                >
-                                    4DX
+                                    Preferencial
                                 </option>
 
                                 <option
@@ -320,6 +314,16 @@ unset(
                                 >
                                     VIP
                                 </option>
+
+                                <option
+                                    value="Discapacidad"
+                                    <?= $tipoActual === 'Discapacidad'
+                                        ? 'selected'
+                                        : ''
+                                    ?>
+                                >
+                                    Discapacidad
+                                </option>
                             </select>
 
                         </div>
@@ -330,16 +334,16 @@ unset(
                         type="submit"
                         class="btn btn-warning"
                     >
-                        <?= $salaEditar
+                        <?= $asientoEditar
                             ? 'Guardar cambios'
-                            : 'Registrar sala'
+                            : 'Registrar asiento'
                         ?>
                     </button>
 
-                    <?php if ($salaEditar): ?>
+                    <?php if ($asientoEditar): ?>
 
                         <a
-                            href="/WebCS_G6_Proyecto/View/Sala.php"
+                            href="/WebCS_G6_Proyecto/View/AdmAsientos.php"
                             class="btn btn-secondary"
                         >
                             Cancelar
@@ -357,7 +361,7 @@ unset(
     <div class="card shadow">
 
         <div class="card-header">
-            <strong>Salas registradas</strong>
+            <strong>Asientos registrados</strong>
         </div>
 
         <div class="card-body table-responsive">
@@ -372,60 +376,67 @@ unset(
                         <th>ID</th>
                         <th>Cine</th>
                         <th>Sala</th>
-                        <th>Capacidad</th>
-                        <th>Pantalla</th>
+                        <th>Fila</th>
+                        <th>Número</th>
+                        <th>Tipo</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
 
                 <tbody>
 
-                <?php if (empty($salas)): ?>
+                <?php if (empty($asientos)): ?>
 
                     <tr>
                         <td
-                            colspan="6"
+                            colspan="7"
                             class="text-center py-4"
                         >
-                            No hay salas registradas.
+                            No hay asientos registrados.
                         </td>
                     </tr>
 
                 <?php else: ?>
 
-                    <?php foreach ($salas as $sala): ?>
+                    <?php foreach ($asientos as $asiento): ?>
 
                         <tr>
                             <td>
-                                <?= (int) $sala['ID_Sala'] ?>
+                                <?= (int) $asiento['ID_Asiento'] ?>
                             </td>
 
                             <td>
-                                <?= htmlspecialchars(
-                                    $sala['NombreCine']
+                                <?= EscaparAsiento(
+                                    $asiento['NombreCine']
                                 ) ?>
                             </td>
 
                             <td>
-                                <?= htmlspecialchars(
-                                    $sala['Nombre']
+                                <?= EscaparAsiento(
+                                    $asiento['NombreSala']
                                 ) ?>
                             </td>
 
                             <td>
-                                <?= (int) $sala['Capacidad'] ?>
+                                <?= EscaparAsiento(
+                                    $asiento['Fila']
+                                ) ?>
                             </td>
 
                             <td>
-                                <?= htmlspecialchars(
-                                    $sala['TipoPantalla']
+                                <?= (int) $asiento['Numero'] ?>
+                            </td>
+
+                            <td>
+                                <?= EscaparAsiento(
+                                    $asiento['TipoAsiento'] ?? ''
                                 ) ?>
                             </td>
 
                             <td class="text-nowrap">
 
                                 <a
-                                    href="/WebCS_G6_Proyecto/View/Sala.php?editar=<?= (int) $sala['ID_Sala'] ?>"
+                                    href="/WebCS_G6_Proyecto/View/AdmAsientos.php?editar=<?= (int) $asiento['ID_Asiento'] ?>"
                                     class="btn btn-warning btn-sm"
                                 >
                                     Editar
@@ -435,7 +446,7 @@ unset(
                                     method="POST"
                                     class="d-inline"
                                     onsubmit="return confirm(
-                                        '¿Deseas eliminar esta sala?'
+                                        '¿Deseas eliminar este asiento?'
                                     );"
                                 >
                                     <input
@@ -446,8 +457,8 @@ unset(
 
                                     <input
                                         type="hidden"
-                                        name="ID_Sala"
-                                        value="<?= (int) $sala['ID_Sala'] ?>"
+                                        name="ID_Asiento"
+                                        value="<?= (int) $asiento['ID_Asiento'] ?>"
                                     >
 
                                     <button
@@ -474,11 +485,10 @@ unset(
 
 </main>
 
-<?php Footer(); ?>
-
-<script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-></script>
+<?php
+Footer();
+ImportJS();
+?>
 
 </body>
 </html>

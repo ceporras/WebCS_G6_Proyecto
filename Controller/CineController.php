@@ -49,7 +49,7 @@ if (isset($_POST['btnRegistrarCine'])) {
     }
 
     header(
-        'Location: /WebCS_G6_Proyecto/View/Cine.php'
+        'Location: /WebCS_G6_Proyecto/View/AdmCines.php'
     );
     exit;
 }
@@ -108,7 +108,7 @@ if (isset($_POST['btnActualizarCine'])) {
     }
 
     header(
-        'Location: /WebCS_G6_Proyecto/View/Cine.php'
+        'Location: /WebCS_G6_Proyecto/View/AdmCines.php'
     );
     exit;
 }
@@ -143,7 +143,7 @@ if (isset($_POST['btnEliminarCine'])) {
     }
 
     header(
-        'Location: /WebCS_G6_Proyecto/View/Cine.php'
+        'Location: /WebCS_G6_Proyecto/View/AdmCines.php'
     );
     exit;
 }

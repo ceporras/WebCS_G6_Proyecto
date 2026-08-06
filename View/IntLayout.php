@@ -123,7 +123,7 @@ function Navbar()
                             <li>
                                 <a
                                     class="dropdown-item"
-                                    href="/WebCS_G6_Proyecto/View/Funciones.php"
+                                    href="/WebCS_G6_Proyecto/View/AdmFunciones.php"
                                 >
                                     Funciones
                                 </a>
@@ -131,7 +131,7 @@ function Navbar()
                             <li>
                                 <a
                                     class="dropdown-item"
-                                    href="/WebCS_G6_Proyecto/View/Cine.php"
+                                    href="/WebCS_G6_Proyecto/View/AdmCines.php"
                                 >
                                     Cines
                                 </a>
@@ -139,7 +139,7 @@ function Navbar()
                             <li>
                                 <a
                                     class="dropdown-item"
-                                    href="/WebCS_G6_Proyecto/View/Sala.php"
+                                    href="/WebCS_G6_Proyecto/View/AdmSalas.php"
                                 >
                                     Salas
                                 </a>
@@ -147,7 +147,7 @@ function Navbar()
                             <li>
                                 <a
                                     class="dropdown-item"
-                                    href="/WebCS_G6_Proyecto/View/Asiento.php"
+                                    href="/WebCS_G6_Proyecto/View/AdmAsientos.php"
                                 >
                                     Asientos
                                 </a>

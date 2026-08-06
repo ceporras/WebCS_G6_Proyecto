@@ -48,7 +48,7 @@ function ProcesarAsientoController()
     }
 
     header(
-        'Location: /WebCS_G6_Proyecto/View/Asiento.php'
+        'Location: /WebCS_G6_Proyecto/View/AdmAsientos.php'
     );
 
     exit;
