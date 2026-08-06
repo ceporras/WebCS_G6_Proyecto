@@ -10,6 +10,12 @@ include_once $_SERVER['DOCUMENT_ROOT']
     . '/WebCS_G6_Proyecto/Model/PeliculaModel.php';
 
 
+//si no soy admin, no debo estar aaqui
+if ($_SESSION["ID_Rol"]!=1) {
+    header("Location: ../View/index.php");
+    exit();
+}
+
 $peliculas = ConsultarPeliculasModel();
 $generos = ConsultarGenerosModel();
 $peliculaEditar = null;

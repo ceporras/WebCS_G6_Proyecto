@@ -83,8 +83,13 @@ function Navbar()
                         >
                             Contacto
                         </a>
-                    </li>
+                    </li>';
 
+                    //mostrar solo logueado
+                    if (isset($_SESSION["ID_Cliente"])) {
+                        //mostrar solo admin
+                        if ($_SESSION["ID_Rol"]==1) {
+                    echo '
                     <li class="nav-item dropdown">
 
                         <a
@@ -156,10 +161,18 @@ function Navbar()
 
                     </li>
                     ';
+                    }
     //si estoy logueado, tengo boton de salir, sino de loguear
-    if (isset($_SESSION["ID_Cliente"])) {
+    //if (isset($_SESSION["ID_Cliente"])) {
 
         echo '
+    <li class="nav-item ms-lg-3">
+        <a
+            class="login-icon"
+            href="/WebCS_G6_Proyecto/View/MiCuenta.php"
+            title="Iniciar sesión"
+            aria-label="Iniciar sesión">👤</a>
+    </li>
     <li class="nav-item ms-lg-3">
         <form action="/WebCS_G6_Proyecto/Controller/ClienteController.php" method="POST">
             <button id="btnSalir" name="btnSalir" type="submit"
@@ -183,13 +196,12 @@ function Navbar()
     </li>';
     }
 
-        echo '
+    echo '
                 </ul>
             </div>
         </div>
     </nav>
     ';
-    
 }
 
 function Footer()

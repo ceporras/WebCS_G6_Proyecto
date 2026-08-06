@@ -44,6 +44,9 @@ if (isset($_POST["btnIniciarSesion"])) {
             $_SESSION["Correo"] =
                 $datos["Correo"];
 
+            $_SESSION["ID_Rol"] =
+                $datos["ID_Rol"];
+
             header(
                 "Location: ../View/index.php"
             );

@@ -11,6 +11,12 @@ include_once $_SERVER['DOCUMENT_ROOT']
 include_once $_SERVER['DOCUMENT_ROOT']
     . '/WebCS_G6_Proyecto/Controller/SalaController.php';
 
+//si no soy admin, no debo estar aaqui
+if ($_SESSION["ID_Rol"]!=1) {
+    header("Location: ../View/index.php");
+    exit();
+}
+
 ProcesarSalaController();
 
 $salas = ObtenerSalasController();
