@@ -1,8 +1,8 @@
 <?php
 
-include_once $_SERVER['DOCUMENT_ROOT']. '/WebCS_G6_Proyecto/Model/ClienteModel.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/WebCS_G6_Proyecto/Model/ClienteModel.php';
 
-include_once $_SERVER['DOCUMENT_ROOT']. '/WebCS_G6_Proyecto/Controller/UtilitarioController.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/WebCS_G6_Proyecto/Controller/UtilitarioController.php';
 
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
@@ -18,12 +18,10 @@ if (isset($_POST["btnIniciarSesion"])) {
 
         $_POST["Mensaje"] =
             "Debe completar el correo y la contraseña.";
-
     } elseif (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
 
         $_POST["Mensaje"] =
             "Debe ingresar un correo electrónico válido.";
-
     } else {
 
         $datos = IniciarSesionModel(
@@ -52,7 +50,6 @@ if (isset($_POST["btnIniciarSesion"])) {
             );
 
             exit();
-
         } else {
 
             $_POST["Mensaje"] =
@@ -97,7 +94,6 @@ if (isset($_POST["btnRegistrar"])) {
 
         $_POST["Mensaje"] =
             "Debe completar todos los campos.";
-
     } elseif (
         !filter_var(
             $correo,
@@ -107,7 +103,6 @@ if (isset($_POST["btnRegistrar"])) {
 
         $_POST["Mensaje"] =
             "Debe ingresar un correo electrónico válido.";
-
     } elseif (
         !preg_match(
             '/^[0-9]{8}$/',
@@ -117,21 +112,18 @@ if (isset($_POST["btnRegistrar"])) {
 
         $_POST["Mensaje"] =
             "El teléfono debe contener exactamente 8 números.";
-
     } elseif (
         strlen($password) < 6
     ) {
 
         $_POST["Mensaje"] =
             "La contraseña debe contener al menos 6 caracteres.";
-
     } elseif (
         $password != $confirmarPassword
     ) {
 
         $_POST["Mensaje"] =
             "Las contraseñas ingresadas no coinciden.";
-
     } else {
 
         $resultado =
@@ -151,7 +143,6 @@ if (isset($_POST["btnRegistrar"])) {
             );
 
             exit();
-
         } else {
 
             $_POST["Mensaje"] =
@@ -171,7 +162,6 @@ if (isset($_POST["btnRecuperarAcceso"])) {
 
         $_POST["Mensaje"] =
             "Debe ingresar su correo electrónico.";
-
     } elseif (
         !filter_var(
             $correo,
@@ -181,7 +171,6 @@ if (isset($_POST["btnRecuperarAcceso"])) {
 
         $_POST["Mensaje"] =
             "Debe ingresar un correo electrónico válido.";
-
     } else {
 
         $datos =
@@ -204,13 +193,12 @@ if (isset($_POST["btnRecuperarAcceso"])) {
 
                 $rutaPlantilla =
                     $_SERVER['DOCUMENT_ROOT']
-                    . '/WebCS_G6_Proyecto/'. 'View/templates/'. 'Recuperacion.html';
+                    . '/WebCS_G6_Proyecto/' . 'View/templates/' . 'Recuperacion.html';
 
                 if (!file_exists($rutaPlantilla)) {
 
                     $_POST["Mensaje"] =
                         "No se encontró la plantilla del correo.";
-
                 } else {
 
                     $plantilla =
@@ -235,7 +223,7 @@ if (isset($_POST["btnRecuperarAcceso"])) {
                     $correoEnviado =
                         EnviarCorreo(
                             "Recuperación de acceso - "
-                            . "Golden Frame Cinema",
+                                . "Golden Frame Cinema",
                             $plantilla,
                             $datos["Correo"]
                         );
@@ -244,12 +232,11 @@ if (isset($_POST["btnRecuperarAcceso"])) {
 
                         header(
                             "Location: "
-                            . "IniciarSesion.php"
-                            . "?recuperacion=exitosa"
+                                . "IniciarSesion.php"
+                                . "?recuperacion=exitosa"
                         );
 
                         exit();
-
                     } else {
 
                         $_POST["Mensaje"] =
@@ -257,13 +244,11 @@ if (isset($_POST["btnRecuperarAcceso"])) {
                             . "pero no se pudo enviar el correo.";
                     }
                 }
-
             } else {
 
                 $_POST["Mensaje"] =
                     "No se pudo generar la contraseña temporal.";
             }
-
         } else {
 
             $_POST["Mensaje"] =
@@ -277,4 +262,154 @@ if (isset($_POST["btnRecuperarAcceso"])) {
 if (isset($_POST["btnSalir"])) {
 
     CerrarSesion();
+}
+
+
+function GetClientesCtrl()
+{
+
+    $datos = GetClientes();
+    return $datos;
+}
+
+function GetClienteByIdCtrl()
+{
+    $ID_Cliente = $_SESSION["ID_Cliente"];
+    $datos = GetClienteById($ID_Cliente);
+    return $datos;
+}
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['EliminarUsuario'])) {
+
+    $ID_Cliente = $_POST['ID_Cliente'];
+
+    $resultado = DeleteCliente($ID_Cliente);
+
+    if ($resultado) {
+
+        echo json_encode([
+            "success" => true
+        ]);
+    } else {
+
+        echo json_encode([
+            "success" => false,
+            "message" => "No se pudo eliminar el usuario."
+        ]);
+    }
+
+    exit;
+}
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ObtenerCliente'])) {
+
+    $ID_Cliente = $_POST['ID_Cliente'];
+
+    $cliente = GetClienteById($ID_Cliente);
+
+    if ($cliente) {
+
+        echo json_encode([
+            "success" => true,
+            "cliente" => $cliente
+        ]);
+    } else {
+
+        echo json_encode([
+            "success" => false,
+            "message" => "No se encontró el usuario."
+        ]);
+    }
+
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ActualizarCliente'])) {
+
+    $ID_Cliente      = $_POST['ID_Cliente'];
+    $Nombre          = $_POST['Nombre'];
+    $ApellidoPaterno = $_POST['ApellidoPaterno'];
+    $ApellidoMaterno = $_POST['ApellidoMaterno'];
+    $Correo          = $_POST['Correo'];
+    $Telefono        = $_POST['Telefono'];
+    $Estado          = (int) $_POST['Estado'];
+    $ID_Rol             = (int) $_POST['ID_Rol'];
+
+    $resultado = UpdateCliente(
+        $ID_Cliente,
+        $Nombre,
+        $ApellidoPaterno,
+        $ApellidoMaterno,
+        $Correo,
+        $Telefono,
+        $Estado,
+        $ID_Rol
+    );
+
+    if ($resultado) {
+
+        echo json_encode([
+            "success" => true,
+            "message" => "Usuario actualizado correctamente."
+        ]);
+    } else {
+
+        echo json_encode([
+            "success" => false,
+            "message" => "No se pudo actualizar el usuario."
+        ]);
+    }
+
+    exit;
+}
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['CrearCliente'])) {
+
+    $Nombre          = $_POST['Nombre'];
+    $ApellidoPaterno = $_POST['ApellidoPaterno'];
+    $ApellidoMaterno = $_POST['ApellidoMaterno'];
+    $Correo          = $_POST['Correo'];
+    $Telefono        = $_POST['Telefono'];
+    $Estado          = (int) $_POST['Estado'];
+    $ID_Rol          = (int) $_POST['ID_Rol'];
+    $Password        = $_POST['Password'];
+
+    $resultado = CrearCliente(
+        $Nombre,
+        $ApellidoPaterno,
+        $ApellidoMaterno,
+        $Correo,
+        $Telefono,
+        $Estado,
+        $ID_Rol,
+        $Password
+    );
+
+    if ($resultado["success"]) {
+
+        echo json_encode([
+            "success" => true
+        ]);
+        
+    } else {
+
+        if ($resultado["code"] == 1062) {
+
+            echo json_encode([
+                "success" => false,
+                "message" => "Ya existe un usuario con ese correo electrónico."
+            ]);
+        } else {
+
+            echo json_encode([
+                "success" => false,
+                "message" => "No se pudo crear el usuario."
+            ]);
+        }
+    }
+
+    exit;
 }

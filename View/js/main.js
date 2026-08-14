@@ -1,113 +1,587 @@
-// Lista de películas para la cartelera
-/*const peliculas = [
-  {
-    titulo: "Avatar: El camino del agua",
-    categoria: "Acción",
-    genero: "Acción / Aventura",
-    duracion: "3h 12min",
-    clasificacion: "Mayores de 12 años",
-    imagen: "https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg"
-  },
-  {
-    titulo: "Spider-Man: No Way Home",
-    categoria: "Acción",
-    genero: "Acción / Aventura",
-    duracion: "2h 28min",
-    clasificacion: "Mayores de 12 años",
-    imagen: "https://image.tmdb.org/t/p/w500/1g0dhYtq4irTY1GPXvft6k4YLjm.jpg"
-  },
-  {
-    titulo: "Intensamente 2",
-    categoria: "Animación",
-    genero: "Animación / Comedia",
-    duracion: "1h 36min",
-    clasificacion: "Todo público",
-    imagen: "https://image.tmdb.org/t/p/w500/vpnVM9B6NMmQpWeZvzLvDESb2QY.jpg"
-  },
-  {
-    titulo: "Kung Fu Panda 4",
-    categoria: "Animación",
-    genero: "Animación / Familiar",
-    duracion: "1h 34min",
-    clasificacion: "Todo público",
-    imagen: "https://image.tmdb.org/t/p/w500/kDp1vUBnMpe8ak4rjgl3cLELqjU.jpg"
-  },
-  {
-    titulo: "Oppenheimer",
-    categoria: "Drama",
-    genero: "Drama / Historia",
-    duracion: "3h 00min",
-    clasificacion: "Mayores de 15 años",
-    imagen: "https://image.tmdb.org/t/p/w500/ptpr0kGAckfQkJeJIt8st5dglvd.jpg"
-  },
-  {
-    titulo: "La La Land",
-    categoria: "Drama",
-    genero: "Drama / Musical",
-    duracion: "2h 08min",
-    clasificacion: "Todo público",
-    imagen: "https://image.tmdb.org/t/p/w500/uDO8zWDhfWwoFdKS4fzkUJt0Rf0.jpg"
-  },
-  {
-    titulo: "El Conjuro",
-    categoria: "Terror",
-    genero: "Terror / Suspenso",
-    duracion: "1h 52min",
-    clasificacion: "Mayores de 15 años",
-    imagen: "https://image.tmdb.org/t/p/w500/wVYREutTvI2tmxr6ujrHT704wGF.jpg"
-  },
-  {
-    titulo: "Un lugar en el silencio",
-    categoria: "Terror",
-    genero: "Terror / Suspenso",
-    duracion: "1h 30min",
-    clasificacion: "Mayores de 15 años",
-    imagen: "https://image.tmdb.org/t/p/w500/nAU74GmpUk7t5iklEp3bufwDq4n.jpg"
-  }
-];
+$(document).on("click", ".btn-eliminarCliente", function () {
+  const ID_Cliente = $(this).data("id");
 
-const contenedor = document.getElementById("contenedorPeliculas");
+  Swal.fire({
+    title: "¿Eliminar usuario?",
+    text: "Esta acción no se puede deshacer.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Sí, eliminar",
+    cancelButtonText: "Cancelar",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      $.ajax({
+        url: "../Controller/ClienteController.php",
+        type: "POST",
+        data: {
+          EliminarUsuario: "EliminarUsuario",
+          ID_Cliente: ID_Cliente,
+        },
+        dataType: "json",
 
-function mostrarPeliculas(lista) {
-  contenedor.innerHTML = "";
+        success: function (response) {
+          if (response.success) {
+            Swal.fire({
+              title: "¡Eliminado!",
+              text: "El usuario fue eliminado correctamente.",
+              icon: "success",
+              confirmButtonText: "Aceptar",
+            }).then(() => {
+              location.reload();
+            });
+          } else {
+            Swal.fire({
+              title: "Error",
+              text: response.message,
+              icon: "error",
+              confirmButtonText: "Aceptar",
+            });
+          }
+        },
 
-  lista.forEach(function (pelicula) {
-    contenedor.innerHTML += `
-      <div class="col-md-3 col-sm-6 mb-4">
-        <div class="pelicula-card">
-          <img src="${pelicula.imagen}" alt="${pelicula.titulo}">
-          <div class="pelicula-info">
-            <span class="etiqueta">${pelicula.categoria}</span>
-            <h3>${pelicula.titulo}</h3>
-            <p><strong>Género:</strong> ${pelicula.genero}</p>
-            <p><strong>Duración:</strong> ${pelicula.duracion}</p>
-            <p><strong>Clasificación:</strong> ${pelicula.clasificacion}</p>
-          </div>
-        </div>
-      </div>
-    `;
+        error: function () {
+          Swal.fire({
+            title: "Error",
+            text: "No se pudo conectar con el servidor.",
+            icon: "error",
+            confirmButtonText: "Aceptar",
+          });
+        },
+      });
+    }
+  });
+});
+
+$(document).on("click", ".btn-editarCliente", function () {
+  const usuarioId = $(this).data("id");
+
+  $.ajax({
+    url: "../Controller/ClienteController.php",
+    type: "POST",
+
+    data: {
+      ObtenerCliente: "ObtenerCliente",
+      ID_Cliente: usuarioId,
+    },
+
+    dataType: "json",
+
+    success: function (response) {
+      if (!response.success) {
+        Swal.fire({
+          title: "Error",
+          text: response.message || "No se encontró el usuario.",
+          icon: "error",
+        });
+
+        return;
+      }
+
+      const cliente = response.cliente;
+
+      Swal.fire({
+        title: "Editar usuario",
+
+        html: `
+                    <div class="text-start">
+
+                        <div class="mb-3">
+                            <label class="form-label">Nombre</label>
+                            <input
+                                type="text"
+                                id="swal-nombre"
+                                class="form-control"
+                                value="${cliente.Nombre || ""}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Apellido paterno</label>
+                            <input
+                                type="text"
+                                id="swal-apellido-paterno"
+                                class="form-control"
+                                value="${cliente.ApellidoPaterno || ""}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Apellido materno</label>
+                            <input
+                                type="text"
+                                id="swal-apellido-materno"
+                                class="form-control"
+                                value="${cliente.ApellidoMaterno || ""}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Correo</label>
+                            <input
+                                type="email"
+                                id="swal-correo"
+                                class="form-control"
+                                value="${cliente.Correo || ""}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Teléfono</label>
+                            <input
+                                type="text"
+                                id="swal-telefono"
+                                class="form-control"
+                                value="${cliente.Telefono || ""}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Estado</label>
+
+                            <select id="swal-estado" class="form-select">
+                                <option value="1"
+                                    ${cliente.Estado == 1 ? "selected" : ""}>
+                                    Activo
+                                </option>
+
+                                <option value="0"
+                                    ${cliente.Estado == 0 ? "selected" : ""}>
+                                    Inactivo
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Rol</label>
+
+                            <select id="swal-rol" class="form-select">
+
+                                <option value="1"
+                                    ${cliente.ID_Rol == 1 ? "selected" : ""}>
+                                    Administrador
+                                </option>
+
+                                <option value="2"
+                                    ${cliente.ID_Rol == 2 ? "selected" : ""}>
+                                    Cliente
+                                </option>
+
+                            </select>
+                        </div>
+
+                    </div>
+                `,
+
+        showCancelButton: true,
+        confirmButtonText: "Guardar cambios",
+        cancelButtonText: "Cancelar",
+        focusConfirm: false,
+
+        preConfirm: function () {
+          return {
+            ID_Cliente: cliente.ID_Cliente,
+
+            Nombre: document.getElementById("swal-nombre").value,
+
+            ApellidoPaterno: document.getElementById("swal-apellido-paterno")
+              .value,
+
+            ApellidoMaterno: document.getElementById("swal-apellido-materno")
+              .value,
+
+            Correo: document.getElementById("swal-correo").value,
+
+            Telefono: document.getElementById("swal-telefono").value,
+
+            Estado: document.getElementById("swal-estado").value,
+
+            ID_Rol: document.getElementById("swal-rol").value,
+          };
+        },
+      }).then(function (result) {
+        if (result.isConfirmed) {
+          actualizarCliente(result.value);
+        }
+      });
+    },
+
+    error: function (xhr) {
+      console.error(xhr.responseText);
+
+      Swal.fire({
+        title: "Error",
+        text: "No se pudo obtener la información del usuario.",
+        icon: "error",
+      });
+    },
+  });
+});
+
+function actualizarCliente(cliente) {
+  $.ajax({
+    url: "../Controller/ClienteController.php",
+
+    type: "POST",
+
+    data: {
+      ActualizarCliente: "ActualizarCliente",
+
+      ID_Cliente: cliente.ID_Cliente,
+
+      Nombre: cliente.Nombre,
+
+      ApellidoPaterno: cliente.ApellidoPaterno,
+
+      ApellidoMaterno: cliente.ApellidoMaterno,
+
+      Correo: cliente.Correo,
+
+      Telefono: cliente.Telefono,
+
+      Estado: cliente.Estado,
+
+      ID_Rol: cliente.ID_Rol,
+    },
+
+    dataType: "json",
+
+    success: function (response) {
+      if (response.success) {
+        Swal.fire({
+          title: "¡Actualizado!",
+          text: "El usuario fue actualizado correctamente.",
+          icon: "success",
+          confirmButtonText: "Aceptar",
+        }).then(function () {
+          location.reload();
+        });
+      } else {
+        Swal.fire({
+          title: "Error",
+          text: response.message || "No se pudo actualizar el usuario.",
+          icon: "error",
+        });
+      }
+    },
+
+    error: function (xhr) {
+      console.error("AJAX error:");
+      console.error(xhr.responseText);
+
+      Swal.fire({
+        title: "Error",
+        text: "Ocurrió un error al actualizar el usuario.",
+        icon: "error",
+      });
+    },
   });
 }
 
-function filtrarPeliculas(categoria) {
-  const botones = document.querySelectorAll(".btn-filtro");
+$(document).on("click", "#btnNuevoUsuario", function () {
+  Swal.fire({
+    title: "Nuevo usuario",
 
-  botones.forEach(function (boton) {
-    boton.classList.remove("active");
-  });
+        html: `
+            <div class="text-start">
 
-  event.target.classList.add("active");
+                <div class="mb-3">
+                    <label class="form-label">
+                        Nombre <span class="text-danger">*</span>
+                    </label>
 
-  if (categoria == "Todas") {
-    mostrarPeliculas(peliculas);
-  } else {
-    const peliculasFiltradas = peliculas.filter(function (pelicula) {
-      return pelicula.categoria == categoria;
+                    <input
+                        type="text"
+                        id="swal-nombre"
+                        class="form-control"
+                        maxlength="45"
+                        placeholder="Nombre">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        Apellido paterno <span class="text-danger">*</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        id="swal-apellido-paterno"
+                        class="form-control"
+                        maxlength="45"
+                        placeholder="Apellido paterno">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        Apellido materno <span class="text-danger">*</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        id="swal-apellido-materno"
+                        class="form-control"
+                        maxlength="45"
+                        placeholder="Apellido materno">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        Correo <span class="text-danger">*</span>
+                    </label>
+
+                    <input
+                        type="email"
+                        id="swal-correo"
+                        class="form-control"
+                        maxlength="45"
+                        placeholder="correo@ejemplo.com">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        Teléfono <span class="text-danger">*</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        id="swal-telefono"
+                        class="form-control"
+                        maxlength="45"
+                        placeholder="8888-8888">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        Estado <span class="text-danger">*</span>
+                    </label>
+
+                    <select id="swal-estado" class="form-select">
+                        <option value="1" selected>Activo</option>
+                        <option value="0">Inactivo</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        Rol <span class="text-danger">*</span>
+                    </label>
+
+                    <select id="swal-rol" class="form-select">
+                        <option value="">Seleccione un rol</option>
+                        <option value="1">Administrador</option>
+                        <option value="2">Cliente</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        Contraseña <span class="text-danger">*</span>
+                    </label>
+
+                    <input
+                        type="password"
+                        id="swal-password"
+                        class="form-control"
+                        maxlength="150"
+                        placeholder="Contraseña">
+                </div>
+
+            </div>
+        `,
+    showCancelButton: true,
+    confirmButtonText: "Crear usuario",
+    cancelButtonText: "Cancelar",
+
+        preConfirm: function () {
+
+            const nombre = document.getElementById("swal-nombre").value.trim();
+            const apellidoPaterno = document.getElementById("swal-apellido-paterno").value.trim();
+            const apellidoMaterno = document.getElementById("swal-apellido-materno").value.trim();
+            const correo = document.getElementById("swal-correo").value.trim();
+            const telefono = document.getElementById("swal-telefono").value.trim();
+            const estado = document.getElementById("swal-estado").value;
+            const ID_Rol = document.getElementById("swal-rol").value;
+            const password = document.getElementById("swal-password").value;
+
+
+            // caracteres permitidos para nombre
+            const nombreRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s-]+$/;
+
+            // Basic email validation
+            const correoRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            const telefonoRegex = /^[0-9+\-()\s]+$/;
+
+            if (!nombre) {
+                Swal.showValidationMessage(
+                    "El nombre es obligatorio."
+                );
+                return false;
+            }
+
+            if (!apellidoPaterno) {
+                Swal.showValidationMessage(
+                    "El apellido paterno es obligatorio."
+                );
+                return false;
+            }
+
+            if (!apellidoMaterno) {
+                Swal.showValidationMessage(
+                    "El apellido materno es obligatorio."
+                );
+                return false;
+            }
+
+            if (!correo) {
+                Swal.showValidationMessage(
+                    "El correo electrónico es obligatorio."
+                );
+                return false;
+            }
+
+            if (!telefono) {
+                Swal.showValidationMessage(
+                    "El teléfono es obligatorio."
+                );
+                return false;
+            }
+
+            if (!ID_Rol) {
+                Swal.showValidationMessage(
+                    "Debe seleccionar un rol."
+                );
+                return false;
+            }
+
+            if (!password) {
+                Swal.showValidationMessage(
+                    "La contraseña es obligatoria."
+                );
+                return false;
+            }
+
+            if (!nombreRegex.test(nombre)) {
+                Swal.showValidationMessage(
+                    "El nombre solo puede contener letras, espacios y guiones."
+                );
+                return false;
+            }
+
+            if (!nombreRegex.test(apellidoPaterno)) {
+                Swal.showValidationMessage(
+                    "El apellido paterno solo puede contener letras, espacios y guiones."
+                );
+                return false;
+            }
+
+            if (!nombreRegex.test(apellidoMaterno)) {
+                Swal.showValidationMessage(
+                    "El apellido materno solo puede contener letras, espacios y guiones."
+                );
+                return false;
+            }
+
+            if (!correoRegex.test(correo)) {
+                Swal.showValidationMessage(
+                    "Ingrese un correo electrónico válido."
+                );
+                return false;
+            }
+
+            if (!telefonoRegex.test(telefono)) {
+                Swal.showValidationMessage(
+                    "El teléfono contiene caracteres no válidos."
+                );
+                return false;
+            }
+
+            if (password.length < 6) {
+                Swal.showValidationMessage(
+                    "La contraseña debe tener al menos 6 caracteres."
+                );
+                return false;
+            }
+
+            return {
+
+                Nombre: nombre,
+                ApellidoPaterno: apellidoPaterno,
+                ApellidoMaterno: apellidoMaterno,
+                Correo: correo,
+                Telefono: telefono,
+                Estado: estado,
+                ID_Rol: ID_Rol,
+                Password: password
+            };
+        }
+
+    }).then(function (result) {
+
+        if (result.isConfirmed) {
+
+            crearCliente(result.value);
+
+        }
+
     });
 
-    mostrarPeliculas(peliculasFiltradas);
-  }
-}
+});
 
-mostrarPeliculas(peliculas);
-*/
+function crearCliente(cliente) {
+  $.ajax({
+    url: "../Controller/ClienteController.php",
+
+    type: "POST",
+
+    data: {
+      CrearCliente: "CrearCliente",
+
+      Nombre: cliente.Nombre,
+      ApellidoPaterno: cliente.ApellidoPaterno,
+      ApellidoMaterno: cliente.ApellidoMaterno,
+      Correo: cliente.Correo,
+      Telefono: cliente.Telefono,
+      Estado: cliente.Estado,
+      ID_Rol: cliente.ID_Rol,
+      Password: cliente.Password,
+    },
+
+    dataType: "json",
+
+    success: function (response) {
+      if (response.success) {
+        Swal.fire({
+          title: "¡Creado!",
+          text: "El usuario fue creado correctamente.",
+          icon: "success",
+        }).then(function () {
+          location.reload();
+        });
+      } else {
+        Swal.fire({
+          title: "Error",
+          text: response.message || "No se pudo crear el usuario.",
+          icon: "error",
+        });
+      }
+    },
+
+    error: function (xhr) {
+      let mensaje = "Ocurrió un error al crear el usuario.";
+
+      if (xhr.responseJSON && xhr.responseJSON.message) {
+        mensaje = xhr.responseJSON.message;
+      } else if (xhr.responseText) {
+        try {
+          const respuesta = JSON.parse(xhr.responseText);
+          if (respuesta.message) {
+            mensaje = respuesta.message;
+          }
+        } catch (e) {
+          console.error(xhr.responseText);
+        }
+      }
+
+      Swal.fire({
+        title: "Error",
+        text: mensaje,
+        icon: "error",
+      });
+    },
+  });
+}

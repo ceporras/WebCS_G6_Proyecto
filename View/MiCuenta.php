@@ -7,7 +7,7 @@ include_once $_SERVER['DOCUMENT_ROOT']
     . '/WebCS_G6_Proyecto/View/IntLayout.php';
 
 
-    if (session_status() == PHP_SESSION_NONE) {
+if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 ?>

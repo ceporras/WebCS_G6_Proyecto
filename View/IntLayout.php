@@ -157,6 +157,14 @@ function Navbar()
                                     Asientos
                                 </a>
                             </li>
+                            <li>
+                                <a
+                                    class="dropdown-item"
+                                    href="/WebCS_G6_Proyecto/View/AdmUsuarios.php"
+                                >
+                                    Usuarios
+                                </a>
+                            </li>
                         </ul>
 
                     </li>

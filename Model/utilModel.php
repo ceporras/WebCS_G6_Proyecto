@@ -28,7 +28,6 @@
 
     } catch (Exception $e) {
 
-        echo "DB error: $e";
         return false;
     }
 }
