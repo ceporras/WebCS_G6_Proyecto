@@ -7,6 +7,12 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
+//si no soy admin, no debo estar aaqui
+if ($_SESSION["ID_Rol"]!=1) {
+    header("Location: ../View/index.php");
+    exit();
+}
+
 $usuarios = GetClientesCtrl();
 ?>
 

@@ -393,7 +393,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['CrearCliente'])) {
         echo json_encode([
             "success" => true
         ]);
-        
     } else {
 
         if ($resultado["code"] == 1062) {
@@ -411,5 +410,189 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['CrearCliente'])) {
         }
     }
 
+    exit;
+}
+
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ObtenerMiPerfil'])) {
+
+    if (session_status() == PHP_SESSION_NONE) {
+        session_start();
+    }
+
+    if (!isset($_SESSION['ID_Cliente'])) {
+
+        echo json_encode([
+            "success" => false,
+            "message" => "La sesión ha expirado."
+        ]);
+
+        exit;
+    }
+
+    $ID_Cliente = $_SESSION['ID_Cliente'];
+
+    $cliente = GetClienteById($ID_Cliente);
+
+    if ($cliente) {
+
+        echo json_encode([
+            "success" => true,
+            "cliente" => $cliente
+        ]);
+    } else {
+
+        echo json_encode([
+            "success" => false,
+            "message" => "No se encontró la información del usuario."
+        ]);
+    }
+
+    exit;
+}
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ActualizarMiPerfil'])) {
+
+    if (session_status() == PHP_SESSION_NONE) {
+        session_start();
+    }
+
+    if (!isset($_SESSION['ID_Cliente'])) {
+
+        echo json_encode([
+            "success" => false,
+            "message" => "La sesión ha expirado."
+        ]);
+
+        exit;
+    }
+
+    $ID_Cliente = $_SESSION['ID_Cliente'];
+
+    $Nombre          = trim($_POST['Nombre'] ?? '');
+    $ApellidoPaterno = trim($_POST['ApellidoPaterno'] ?? '');
+    $ApellidoMaterno = trim($_POST['ApellidoMaterno'] ?? '');
+    $Correo          = trim($_POST['Correo'] ?? '');
+    $Telefono        = trim($_POST['Telefono'] ?? '');
+
+
+    if (
+        empty($Nombre) ||
+        empty($ApellidoPaterno) ||
+        empty($ApellidoMaterno) ||
+        empty($Correo) ||
+        empty($Telefono)
+    ) {
+
+        echo json_encode([
+            "success" => false,
+            "message" => "Todos los campos son obligatorios."
+        ]);
+
+        exit;
+    }
+
+
+    if (!filter_var($Correo, FILTER_VALIDATE_EMAIL)) {
+
+        echo json_encode([
+            "success" => false,
+            "message" => "El correo electrónico no es válido."
+        ]);
+
+        exit;
+    }
+
+
+    $resultado = UpdateClientePerfil(
+        $ID_Cliente,
+        $Nombre,
+        $ApellidoPaterno,
+        $ApellidoMaterno,
+        $Correo,
+        $Telefono
+    );
+
+
+    echo json_encode($resultado);
+
+    exit;
+}
+
+
+if (
+    $_SERVER['REQUEST_METHOD'] === 'POST' &&
+    isset($_POST['CambiarPassword'])
+) {
+
+    if (session_status() == PHP_SESSION_NONE) {
+        session_start();
+    }
+
+    if (!isset($_SESSION['ID_Cliente'])) {
+
+        echo json_encode([
+            "success" => false,
+            "message" => "La sesión ha expirado."
+        ]);
+
+        exit;
+    }
+
+    $ID_Cliente = $_SESSION['ID_Cliente'];
+
+    $PasswordActual = $_POST['PasswordActual'] ?? '';
+    $PasswordNueva  = $_POST['PasswordNueva'] ?? '';
+
+
+    if (empty($PasswordActual) || empty($PasswordNueva)) {
+
+        echo json_encode([
+            "success" => false,
+            "message" => "Todos los campos son obligatorios."
+        ]);
+
+        exit;
+    }
+
+
+    if (strlen($PasswordNueva) < 6) {
+
+        echo json_encode([
+            "success" => false,
+            "message" => "La nueva contraseña debe tener al menos 6 caracteres."
+        ]);
+
+        exit;
+    }
+
+
+    // Get current user
+    $cliente = GetClientePwdById($ID_Cliente);
+
+
+    if (!$cliente) {
+        echo json_encode([
+            "success" => false,
+            "message" => "No se encontró el usuario."
+        ]);
+        exit;
+    }
+
+    // Verify current password (plain text)
+    if ($PasswordActual !== $cliente['Password']) {
+        echo json_encode([
+            "success" => false,
+            "message" => "La contraseña actual es incorrecta."
+        ]);
+        exit;
+    }
+
+    // Save the new password directly
+    $resultado = UpdatePassword($ID_Cliente, $PasswordNueva);
+
+    echo json_encode($resultado);
     exit;
 }

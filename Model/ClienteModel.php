@@ -139,16 +139,26 @@ function GetClienteById($ID_Cliente)
     }
 }
 
-function UpdateCliente(
-    $ID_Cliente,
-    $Nombre,
-    $ApellidoPaterno,
-    $ApellidoMaterno,
-    $Correo,
-    $Telefono,
-    $Estado,
-    $Rol
-) {
+function GetClientePwdById($ID_Cliente)
+{
+    try {
+        $conn = OpenDB();
+        $sql = "CALL sp_GetClientePwd_By_ID('$ID_Cliente')";
+        $response = $conn->query($sql);
+
+        $datos = null;
+        while ($fila = $response->fetch_assoc()) {
+            $datos = $fila;
+        }
+
+        CloseDB($conn);
+        return $datos;
+    } catch (Exception $e) {
+        addLog(timestamp(), "ERROR", "GetClienteById", $e);
+    }
+}
+
+function UpdateCliente($ID_Cliente, $Nombre, $ApellidoPaterno, $ApellidoMaterno, $Correo, $Telefono, $Estado, $Rol) {
     try {
 
         $conn = OpenDB();
@@ -194,16 +204,7 @@ function DeleteCliente($ID_Cliente)
     }
 }
 
-function CrearCliente(
-    $Nombre,
-    $ApellidoPaterno,
-    $ApellidoMaterno,
-    $Correo,
-    $Telefono,
-    $Estado,
-    $ID_Rol,
-    $Password
-) {
+function CrearCliente($Nombre, $ApellidoPaterno, $ApellidoMaterno, $Correo, $Telefono, $Estado, $ID_Rol, $Password) {
     try {
 
         $conn = OpenDB();
@@ -234,6 +235,99 @@ function CrearCliente(
             "success" => false,
             "code" => $e->getCode(),
             "message" => $e->getMessage()
+        ];
+    }
+}
+
+
+function UpdateClientePerfil(
+    $ID_Cliente,
+    $Nombre,
+    $ApellidoPaterno,
+    $ApellidoMaterno,
+    $Correo,
+    $Telefono
+)
+{
+    try {
+
+        $conn = OpenDB();
+
+        $sql = "CALL sp_UpdateClientePerfil(
+            '$ID_Cliente',
+            '$Nombre',
+            '$ApellidoPaterno',
+            '$ApellidoMaterno',
+            '$Correo',
+            '$Telefono'
+        )";
+
+        $conn->query($sql);
+
+        CloseDB($conn);
+
+        return [
+            "success" => true,
+            "message" => "Perfil actualizado correctamente."
+        ];
+
+    } catch (mysqli_sql_exception $e) {
+
+        addLog(
+            timestamp(),
+            "ERROR",
+            "UpdateClientePerfil",
+            $e
+        );
+
+        if ($e->getCode() == 1062) {
+
+            return [
+                "success" => false,
+                "message" => "Ya existe un usuario con ese correo electrónico."
+            ];
+        }
+
+        return [
+            "success" => false,
+            "message" => "No se pudo actualizar el perfil."
+        ];
+    }
+}
+
+
+function UpdatePassword($ID_Cliente, $Password)
+{
+    try {
+
+        $conn = OpenDB();
+
+        $sql = "CALL sp_UpdateClientePassword(
+            '$ID_Cliente',
+            '$Password'
+        )";
+
+        $conn->query($sql);
+
+        CloseDB($conn);
+
+        return [
+            "success" => true,
+            "message" => "Contraseña actualizada correctamente."
+        ];
+
+    } catch (Exception $e) {
+
+        addLog(
+            timestamp(),
+            "ERROR",
+            "UpdatePassword",
+            $e
+        );
+
+        return [
+            "success" => false,
+            "message" => "No se pudo actualizar la contraseña."
         ];
     }
 }

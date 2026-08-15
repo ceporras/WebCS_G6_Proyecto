@@ -585,3 +585,416 @@ function crearCliente(cliente) {
     },
   });
 }
+
+
+
+
+
+$(document).ready(function () {
+
+    if ($("#formPerfil").length) {
+        cargarMiPerfil();
+    }
+
+});
+
+
+function cargarMiPerfil() {
+
+    $.ajax({
+
+        url: "../Controller/ClienteController.php",
+
+        type: "POST",
+
+        data: {
+            ObtenerMiPerfil: "ObtenerMiPerfil"
+        },
+
+        dataType: "json",
+
+        success: function (response) {
+
+            if (!response.success) {
+
+                Swal.fire({
+                    title: "Error",
+                    text: response.message,
+                    icon: "error"
+                });
+
+                return;
+            }
+
+            const cliente = response.cliente;
+
+            $("#perfil-nombre").val(cliente.Nombre);
+            $("#perfil-apellido-paterno").val(cliente.ApellidoPaterno);
+            $("#perfil-apellido-materno").val(cliente.ApellidoMaterno);
+            $("#perfil-correo").val(cliente.Correo);
+            $("#perfil-telefono").val(cliente.Telefono);
+
+        },
+
+        error: function (xhr) {
+
+            console.error(xhr.responseText);
+
+            Swal.fire({
+                title: "Error",
+                text: "No se pudo cargar tu información.",
+                icon: "error"
+            });
+
+        }
+
+    });
+
+}
+
+
+$(document).on("click", "#btnGuardarPerfil", function () {
+
+    const nombre = $("#perfil-nombre").val().trim();
+    const apellidoPaterno = $("#perfil-apellido-paterno").val().trim();
+    const apellidoMaterno = $("#perfil-apellido-materno").val().trim();
+    const correo = $("#perfil-correo").val().trim();
+    const telefono = $("#perfil-telefono").val().trim();
+
+    const nombreRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s-]+$/;
+    const correoRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const telefonoRegex = /^[0-9+\-()\s]+$/;
+
+
+    if (!nombre || !apellidoPaterno || !apellidoMaterno || !correo || !telefono) {
+
+        Swal.fire({
+            title: "Campos obligatorios",
+            text: "Todos los campos deben completarse.",
+            icon: "warning"
+        });
+
+        return;
+    }
+
+
+    if (!nombreRegex.test(nombre)) {
+
+        Swal.fire({
+            title: "Nombre inválido",
+            text: "El nombre solo puede contener letras, espacios y guiones.",
+            icon: "warning"
+        });
+
+        return;
+    }
+
+
+    if (!nombreRegex.test(apellidoPaterno)) {
+
+        Swal.fire({
+            title: "Apellido inválido",
+            text: "El apellido paterno solo puede contener letras, espacios y guiones.",
+            icon: "warning"
+        });
+
+        return;
+    }
+
+
+    if (!nombreRegex.test(apellidoMaterno)) {
+
+        Swal.fire({
+            title: "Apellido inválido",
+            text: "El apellido materno solo puede contener letras, espacios y guiones.",
+            icon: "warning"
+        });
+
+        return;
+    }
+
+
+    if (!correoRegex.test(correo)) {
+
+        Swal.fire({
+            title: "Correo inválido",
+            text: "Ingrese un correo electrónico válido.",
+            icon: "warning"
+        });
+
+        return;
+    }
+
+
+    if (!telefonoRegex.test(telefono)) {
+
+        Swal.fire({
+            title: "Teléfono inválido",
+            text: "El teléfono contiene caracteres no válidos.",
+            icon: "warning"
+        });
+
+        return;
+    }
+
+
+    $.ajax({
+
+        url: "../Controller/ClienteController.php",
+
+        type: "POST",
+
+        data: {
+
+            ActualizarMiPerfil: "ActualizarMiPerfil",
+
+            Nombre: nombre,
+            ApellidoPaterno: apellidoPaterno,
+            ApellidoMaterno: apellidoMaterno,
+            Correo: correo,
+            Telefono: telefono
+
+        },
+
+        dataType: "json",
+
+        success: function (response) {
+
+            if (response.success) {
+
+                Swal.fire({
+                    title: "¡Actualizado!",
+                    text: "Tu información fue actualizada correctamente.",
+                    icon: "success"
+                });
+
+            } else {
+
+                Swal.fire({
+                    title: "Error",
+                    text: response.message,
+                    icon: "error"
+                });
+
+            }
+
+        },
+
+        error: function (xhr) {
+
+            console.error(xhr.responseText);
+
+            Swal.fire({
+                title: "Error",
+                text: "Ocurrió un error al actualizar tu información.",
+                icon: "error"
+            });
+
+        }
+
+    });
+
+});
+
+
+
+$(document).on("click", "#btnCambiarPassword", function () {
+
+    Swal.fire({
+
+        title: "Cambiar contraseña",
+
+        html: `
+            <div class="text-start">
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        Contraseña actual
+                    </label>
+
+                    <input
+                        type="password"
+                        id="swal-password-actual"
+                        class="form-control">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        Nueva contraseña
+                    </label>
+
+                    <input
+                        type="password"
+                        id="swal-password-nueva"
+                        class="form-control"
+                        maxlength="150">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        Confirmar nueva contraseña
+                    </label>
+
+                    <input
+                        type="password"
+                        id="swal-password-confirmar"
+                        class="form-control"
+                        maxlength="150">
+                </div>
+
+            </div>
+        `,
+
+        showCancelButton: true,
+
+        confirmButtonText: "Cambiar contraseña",
+        cancelButtonText: "Cancelar",
+
+        preConfirm: function () {
+
+            const actual =
+                document.getElementById("swal-password-actual").value;
+
+            const nueva =
+                document.getElementById("swal-password-nueva").value;
+
+            const confirmar =
+                document.getElementById("swal-password-confirmar").value;
+
+
+            if (!actual) {
+
+                Swal.showValidationMessage(
+                    "Debe ingresar su contraseña actual."
+                );
+
+                return false;
+            }
+
+
+            if (!nueva) {
+
+                Swal.showValidationMessage(
+                    "Debe ingresar una nueva contraseña."
+                );
+
+                return false;
+            }
+
+
+            if (nueva.length < 6) {
+
+                Swal.showValidationMessage(
+                    "La nueva contraseña debe tener al menos 6 caracteres."
+                );
+
+                return false;
+            }
+
+
+            if (!confirmar) {
+
+                Swal.showValidationMessage(
+                    "Debe confirmar la nueva contraseña."
+                );
+
+                return false;
+            }
+
+
+            if (nueva !== confirmar) {
+
+                Swal.showValidationMessage(
+                    "Las contraseñas no coinciden."
+                );
+
+                return false;
+            }
+
+
+            if (actual === nueva) {
+
+                Swal.showValidationMessage(
+                    "La nueva contraseña debe ser diferente a la actual."
+                );
+
+                return false;
+            }
+
+
+            return {
+                actual: actual,
+                nueva: nueva
+            };
+        }
+
+    }).then(function (result) {
+
+        if (result.isConfirmed) {
+
+            cambiarPassword(result.value);
+
+        }
+
+    });
+
+});
+
+
+
+function cambiarPassword(password) {
+
+    $.ajax({
+
+        url: "../Controller/ClienteController.php",
+
+        type: "POST",
+
+        data: {
+
+            CambiarPassword: "CambiarPassword",
+
+            PasswordActual: password.actual,
+            PasswordNueva: password.nueva
+
+        },
+
+        dataType: "json",
+
+        success: function (response) {
+
+            if (response.success) {
+
+                Swal.fire({
+                    title: "¡Contraseña actualizada!",
+                    text: "Tu contraseña fue cambiada correctamente.",
+                    icon: "success"
+                });
+
+            } else {
+
+                Swal.fire({
+                    title: "No se pudo cambiar",
+                    text: response.message,
+                    icon: "error"
+                });
+
+            }
+
+        },
+
+        error: function (xhr) {
+
+            console.error(xhr.responseText);
+
+            Swal.fire({
+                title: "Error",
+                text: "Ocurrió un error al cambiar la contraseña.",
+                icon: "error"
+            });
+
+        }
+
+    });
+
+}
