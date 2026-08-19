@@ -440,9 +440,63 @@ function ConsultarPeliculasInicioModel()
         }
 
         return $peliculas;
+
     } catch (Exception $e) {
-        addLog(timestamp(), "ERROR", "ConsultarPeliculasInicioModel", $e);
+        addLog(
+            timestamp(),
+            "ERROR",
+            "ConsultarPeliculasInicioModel",
+            $e
+        );
+
         return false;
+
+    } finally {
+        CloseDB($conn);
+    }
+}
+
+
+function ConsultarPeliculasPorGeneroModel($idGenero)
+{
+    $conn = OpenDB();
+    $peliculas = [];
+
+    try {
+        $stmt = $conn->prepare(
+            "CALL spGetPeliculasPorGenero(?)"
+        );
+
+        $stmt->bind_param(
+            "i",
+            $idGenero
+        );
+
+        $stmt->execute();
+
+        $resultado = $stmt->get_result();
+
+        while ($fila = $resultado->fetch_assoc()) {
+            $peliculas[] = $fila;
+        }
+
+        $resultado->free();
+        $stmt->close();
+
+        LimpiarResultadosPendientes($conn);
+
+        return $peliculas;
+
+    } catch (Exception $e) {
+        addLog(
+            timestamp(),
+            "ERROR",
+            "ConsultarPeliculasPorGeneroModel",
+            $e
+        );
+
+        return false;
+
     } finally {
         CloseDB($conn);
     }

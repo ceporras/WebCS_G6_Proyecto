@@ -21,6 +21,16 @@ function FormatDuracion($minutos) {
     }
 }
 
+function ConsultarPeliculasPorGenero($idGenero)
+{
+    $idGenero = (int) $idGenero;
+
+    return ConsultarPeliculasPorGeneroModel(
+        $idGenero
+    );
+}
+
+
 /* Registro de género */
 
 if (isset($_POST['btnRegistrarGenero'])) {
@@ -299,3 +309,5 @@ if (isset($_POST['btnEliminarPelicula'])) {
     header('Location: ../View/AdmPeliculas.php');
     exit;
 }
+
+

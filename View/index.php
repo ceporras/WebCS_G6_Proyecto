@@ -7,9 +7,21 @@ include_once $_SERVER['DOCUMENT_ROOT']
     . '/WebCS_G6_Proyecto/View/IntLayout.php';
 
 include_once $_SERVER['DOCUMENT_ROOT']
-    . '/WebCS_G6_Proyecto/Model/PeliculaModel.php';
+    . '/WebCS_G6_Proyecto/Controller/PeliculaController.php';
 
-$peliculas = ConsultarPeliculasInicioModel();
+$idGenero = filter_input(
+    INPUT_GET,
+    'idGenero',
+    FILTER_VALIDATE_INT
+);
+
+if ($idGenero === null || $idGenero === false) {
+    $idGenero = 0;
+}
+
+$peliculas = ConsultarPeliculasPorGenero(
+    $idGenero
+);
 
 function EscaparInicio($valor)
 {
@@ -19,6 +31,7 @@ function EscaparInicio($valor)
         'UTF-8'
     );
 }
+
 ?>
 
 <!doctype html>
@@ -97,49 +110,44 @@ function EscaparInicio($valor)
             Películas disponibles esta semana en nuestras salas.
         </p>
 
-        <div class="text-center mb-5">
+       <div class="text-center mb-5">
 
-            <button
-                type="button"
-                class="btn btn-filtro active"
-                onclick="filtrarPeliculas('Todas')"
-            >
-                Todas
-            </button>
+    <a
+        href="?idGenero=0#cartelera"
+        class="btn btn-filtro <?= $idGenero == 0 ? 'active' : '' ?>"
+    >
+        Todas
+    </a>
 
-            <button
-                type="button"
-                class="btn btn-filtro"
-                onclick="filtrarPeliculas('Acción')"
-            >
-                Acción
-            </button>
+    <a
+        href="?idGenero=1#cartelera"
+        class="btn btn-filtro <?= $idGenero == 1 ? 'active' : '' ?>"
+    >
+        Acción
+    </a>
 
-            <button
-                type="button"
-                class="btn btn-filtro"
-                onclick="filtrarPeliculas('Animación')"
-            >
-                Animación
-            </button>
+    <a
+        href="?idGenero=7#cartelera"
+        class="btn btn-filtro <?= $idGenero == 7 ? 'active' : '' ?>"
+    >
+        Animación
+    </a>
 
-            <button
-                type="button"
-                class="btn btn-filtro"
-                onclick="filtrarPeliculas('Drama')"
-            >
-                Drama
-            </button>
+    <a
+        href="?idGenero=6#cartelera"
+        class="btn btn-filtro <?= $idGenero == 6 ? 'active' : '' ?>"
+    >
+        Drama
+    </a>
 
-            <button
-                type="button"
-                class="btn btn-filtro"
-                onclick="filtrarPeliculas('Terror')"
-            >
-                Terror
-            </button>
+    <a
+        href="?idGenero=4#cartelera"
+        class="btn btn-filtro <?= $idGenero == 4 ? 'active' : '' ?>"
+    >
+        Terror
+    </a>
 
-        </div>
+</div>
 
         <div
             class="row"
