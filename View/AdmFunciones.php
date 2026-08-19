@@ -6,7 +6,9 @@ include_once $_SERVER['DOCUMENT_ROOT']
 include_once $_SERVER['DOCUMENT_ROOT']
     . '/WebCS_G6_Proyecto/View/IntLayout.php';
 
-
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 //si no soy admin, no debo estar aaqui
 if ($_SESSION["ID_Rol"]!=1) {
     header("Location: ../View/index.php");

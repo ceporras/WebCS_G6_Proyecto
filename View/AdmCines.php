@@ -1,6 +1,5 @@
 <?php
 
-session_start();
 
 include_once $_SERVER['DOCUMENT_ROOT']
     . '/WebCS_G6_Proyecto/View/IntLayout.php';
@@ -10,6 +9,10 @@ include_once $_SERVER['DOCUMENT_ROOT']
 
 include_once $_SERVER['DOCUMENT_ROOT']
     . '/WebCS_G6_Proyecto/Controller/CineController.php';
+
+    if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
 //si no soy admin, no debo estar aaqui
 if ($_SESSION["ID_Rol"]!=1) {
