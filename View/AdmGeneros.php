@@ -7,7 +7,7 @@ include_once $_SERVER['DOCUMENT_ROOT']
     . '/WebCS_G6_Proyecto/View/IntLayout.php';
 
 include_once $_SERVER['DOCUMENT_ROOT']
-    . '/WebCS_G6_Proyecto/Model/PeliculaModel.php';
+    . '/WebCS_G6_Proyecto/Controller/PeliculaController.php';
 
     //si no soy admin, no debo estar aaqui
 if ($_SESSION["ID_Rol"]!=1) {
@@ -16,7 +16,7 @@ if ($_SESSION["ID_Rol"]!=1) {
 }
 
 
-$generos = ConsultarGenerosModel();
+$generos = ConsultarGenerosController();
 $generoEditar = null;
 
 if (isset($_GET['editarGenero'])) {
@@ -28,7 +28,7 @@ if (isset($_GET['editarGenero'])) {
     );
 
     if ($idGenero) {
-        $generoEditar = ConsultarGeneroPorIdModel($idGenero);
+        $generoEditar = ConsultarGeneroPorIdController($idGenero);
     }
 }
 

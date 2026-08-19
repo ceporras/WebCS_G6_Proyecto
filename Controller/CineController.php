@@ -3,6 +3,16 @@
 include_once $_SERVER['DOCUMENT_ROOT']
     . '/WebCS_G6_Proyecto/Model/CineModel.php';
 
+function ConsultarCinesController()
+{
+    return ConsultarCinesModel();
+}
+
+function ConsultarCinePorIdController($idCine)
+{
+    return ConsultarCinePorIdModel($idCine);
+}
+
 /* Registrar cine */
 
 if (isset($_POST['btnRegistrarCine'])) {

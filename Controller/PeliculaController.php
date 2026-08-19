@@ -21,6 +21,7 @@ function FormatDuracion($minutos) {
     }
 }
 
+
 function ConsultarPeliculasPorGenero($idGenero)
 {
     $idGenero = (int) $idGenero;
@@ -28,6 +29,19 @@ function ConsultarPeliculasPorGenero($idGenero)
     return ConsultarPeliculasPorGeneroModel(
         $idGenero
     );
+}
+
+
+/* CONSULTAS DE GÉNEROS */
+
+function ConsultarGenerosController()
+{
+    return ConsultarGenerosModel();
+}
+
+function ConsultarGeneroPorIdController($idGenero)
+{
+    return ConsultarGeneroPorIdModel($idGenero);
 }
 
 
@@ -138,7 +152,7 @@ if (isset($_POST['btnRegistrarPelicula'])) {
 
         $clasificacion = trim($_POST['clasificacion'] ?? '');
         $fechaEstreno = trim($_POST['fechaEstreno'] ?? '');
-        $urlTrailer = trim($POST['urlTrailer'] ?? '');
+        $urlTrailer = trim($_POST['urlTrailer'] ?? '');
         $urlPoster = trim($_POST['urlPoster'] ?? '');
         $idioma = trim($_POST['idioma'] ?? '');
         $generos = $_POST['generos'] ?? [];
@@ -172,7 +186,7 @@ if (isset($_POST['btnRegistrarPelicula'])) {
         );
 
         $_SESSION['Mensaje'] = 'La película fue registrada de manera exitosa.';
-        $_SESSION['TipoMensaje'] = 'sucess';
+        $_SESSION['TipoMensaje'] = 'success';
     } catch (Throwable $e) {
         $_SESSION['Mensaje'] = $e->getMessage();
         $_SESSION['TipoMensaje'] = 'danger';

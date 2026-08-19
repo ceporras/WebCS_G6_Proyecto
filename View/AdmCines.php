@@ -17,7 +17,7 @@ if ($_SESSION["ID_Rol"]!=1) {
     exit();
 }
 
-$cines = ConsultarCinesModel();
+$cines = ConsultarCinesController();
 $cineEditar = null;
 
 if (isset($_GET['editarCine'])) {
@@ -28,7 +28,7 @@ if (isset($_GET['editarCine'])) {
     );
 
     if ($idCine) {
-        $cineEditar = ConsultarCinePorIdModel($idCine);
+        $cineEditar = ConsultarCinePorIdController($idCine);
     }
 }
 
