@@ -178,8 +178,8 @@ function Navbar()
         <a
             class="login-icon"
             href="/WebCS_G6_Proyecto/View/MiCuenta.php"
-            title="Iniciar sesión"
-            aria-label="Iniciar sesión">👤</a>
+            title="Mi Cuenta"
+            aria-label="Mi Cuenta">👤</a>
     </li>
     <li class="nav-item ms-lg-3">
         <form action="/WebCS_G6_Proyecto/Controller/ClienteController.php" method="POST">
